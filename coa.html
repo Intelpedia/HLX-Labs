@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>COAs | HLX Labs</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="coa-page">
+  <header class="site-header coa-site-header">
+    <a class="brand" href="index.html">
+      <img src="assets/logo.png" alt="HLX Labs logo">
+      <span><b>HLX</b> LABS</span>
+    </a>
+    <nav>
+      <a href="index.html">HOME</a>
+      <a href="shop.html">SHOP</a>
+      <a class="active-nav" href="coa.html">COAs</a>
+      <a href="contact.html">CONTACT</a>
+      <a href="account.html">ACCOUNT</a>
+      <a class="cart-pill" href="cart.html">CART (<span class="cart-count">0</span>)</a>
+    </nav>
+  </header>
+
+  <section class="coa-hero">
+    <div class="coa-hero-copy">
+      <div class="coa-kicker">PRODUCT DOCUMENTATION</div>
+      <h1>CERTIFICATES<br>OF ANALYSIS</h1>
+      <p>TRANSPARENCY. QUALITY. TRUST.</p>
+      <span class="coa-hero-rule"></span>
+    </div>
+    <div class="coa-hero-art" aria-hidden="true">
+      <div class="coa-orbit"></div>
+      <img src="assets/logo.png" alt="">
+    </div>
+    <div class="coa-trust-list">
+      <span>✓ QUALITY DOCUMENTATION</span>
+      <span>⌁ PRODUCT-SPECIFIC RECORDS</span>
+      <span>▣ CENTRALIZED COA LIBRARY</span>
+      <span>★ VETERAN OWNED</span>
+    </div>
+  </section>
+
+  <main class="coa-shell">
+    <div class="coa-toolbar">
+      <label class="coa-search-wrap">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input id="coaSearch" type="search" placeholder="Search COAs..." aria-label="Search COAs">
+      </label>
+      <select id="coaTierFilter" aria-label="Filter COAs by tier">
+        <option value="All">All Tiers</option>
+        <option value="Low">Low Tier</option>
+        <option value="High">High Tier</option>
+        <option value="Extreme">Extreme Tier</option>
+      </select>
+      <div class="coa-count"><span id="coaCount">25</span> COAs FOUND</div>
+    </div>
+
+    <div id="coaGrid" class="coa-grid"></div>
+  </main>
+
+  <div class="coa-lightbox" id="coaLightbox" aria-hidden="true">
+    <button class="coa-lightbox-close" id="coaLightboxClose" type="button" aria-label="Close COA viewer">×</button>
+    <div class="coa-lightbox-inner">
+      <h2 id="coaLightboxTitle">Certificate of Analysis</h2>
+      <img id="coaLightboxImage" src="" alt="">
+    </div>
+  </div>
+
+  <footer class="professional-footer">
+  <div class="footer-inner">
+    <div class="footer-brand-block">
+      <a class="footer-brand" href="index.html"><img src="assets/logo.png" alt="HLX Labs"><span><b>HLX</b> LABS</span></a>
+      <p>Veteran Owned <span>•</span> American Made <span>•</span> Quality Tested</p>
+      <div class="footer-research">RESEARCH USE ONLY</div>
+    </div>
+    <div class="footer-links-block"><h3>SHOP</h3><a href="shop.html">All Products</a><a href="coa.html">COAs</a></div>
+    <div class="footer-links-block"><h3>SUPPORT</h3><a href="contact.html">Contact Us</a><a href="faq.html">FAQ</a><a href="shipping.html">Shipping &amp; Returns</a></div>
+    <div class="footer-links-block"><h3>COMPANY</h3><a href="index.html#about">Our Story</a><a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 HLX Labs. All Rights Reserved.</span><span>Products and information are intended for laboratory research use only.</span></div>
+</footer>
+  <script src="app.js"></script>
+</body>
+</html>
