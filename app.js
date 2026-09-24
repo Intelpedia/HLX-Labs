@@ -15,9 +15,9 @@ const products = [
   // PRODUCT 01
   {
     id: 1,
-    name: 'Retatrutide',
+    name: 'HLR-3',
     tier: "Extreme",
-    desc: "Retatrutide is an investigational peptide studied in laboratory research involving GLP-1, GIP, and glucagon receptor signaling and associated metabolic pathways..",
+    desc: "HLR-3 is an investigational peptide studied in laboratory research involving GLP-1, GIP, and glucagon receptor signaling and associated metabolic pathways..",
     options: [
       { label: "12mg", price: 60.00 },
       { label: "20mg", price: 90.00 }
