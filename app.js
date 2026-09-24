@@ -29,9 +29,9 @@ const products = [
   // PRODUCT 02
   {
     id: 2,
-    name: 'Tirzepatide',
+    name: 'HLT-2',
     tier: "Extreme",
-    desc: "Tirzepatide isa peptide studied in laboratory research involving GIP and GLP-1 receptor activity and associated metabolic signaling pathways.",
+    desc: "HLT-2 is a peptide studied in laboratory research involving GIP and GLP-1 receptor activity and associated metabolic signaling pathways.",
     options: [
       { label: "10mg", price: 40.00 },
       { label: "30mg", price: 60.00 }
@@ -43,9 +43,9 @@ const products = [
   // PRODUCT 03
   {
     id: 3,
-    name: 'Semaglutide 10mg',
+    name: 'HLS-1 10mg',
     tier: "Extreme",
-    desc: "Semaglutide is a GLP-1 receptor agonist studied in research involving GLP-1 receptor signaling and associated metabolic and cellular pathways.",
+    desc: "HLS-1 is a GLP-1 receptor agonist studied in research involving GLP-1 receptor signaling and associated metabolic and cellular pathways.",
     price: 40.00,
     size: "Single Vial",
     productImage: "assets/SEMAGLUTIDE.jpg",
