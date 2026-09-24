@@ -48,7 +48,7 @@ const products = [
     desc: "HLS-1 is a GLP-1 receptor agonist studied in research involving GLP-1 receptor signaling and associated metabolic and cellular pathways.",
     price: 40.00,
     size: "Single Vial",
-    productImage: "assets/SEMAGLUTIDE.jpg",
+    productImage: "assets/HLS-1.jpeg",
     coaImage: "assets/coa-placeholder.svg"
   },
 
