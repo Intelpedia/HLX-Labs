@@ -43,11 +43,11 @@ const products = [
   // PRODUCT 03
   {
     id: 3,
-    name: 'HLS-1 10mg',
+    name: 'HLS-1',
     tier: "Extreme",
     desc: "HLS-1 is a GLP-1 receptor agonist studied in research involving GLP-1 receptor signaling and associated metabolic and cellular pathways.",
     price: 40.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/HLS-1.jpeg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -55,11 +55,11 @@ const products = [
   // PRODUCT 04
   {
     id: 4,
-    name: 'Cagrilintide 10mg',
+    name: 'Cagrilintide',
     tier: "Extreme",
     desc: "Cagrilintide is a long-acting amylin analog investigated in reseach involving amylin receptor signaling and metabolic regulatory pathways.",
     price: 80.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/CAGRILINTIDE.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -67,11 +67,11 @@ const products = [
   // PRODUCT 05
   {
     id: 5,
-    name: 'Tesamorelin 12mg',
+    name: 'Tesamorelin',
     tier: "High",
     desc: "Tesamorelin is a growth hormone-releasing hormone (GHRH) analog studied in research involving GHRH receptor activity and downstream endocrine signaling pathways.",
     price: 70.00,
-    size: "Single Vial",
+    size: "12mg",
     productImage: "assets/Tesareal.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -79,11 +79,11 @@ const products = [
   // PRODUCT 06
   {
     id: 6,
-    name: 'Ipamorelin 10mg',
+    name: 'Ipamorelin',
     tier: "High",
     desc: "Ipamorelin is a synthetic peptide studied for its interaction with the growth hormone secretagogue receptor and associated cellular and endocrine signaling pathways.",
     price: 40.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/IPAMORELIN.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -91,11 +91,11 @@ const products = [
   // PRODUCT 07
   {
     id: 7,
-    name: 'CJC-1295 10mg',
+    name: 'CJC-1295',
     tier: "High",
     desc: "CJC-1295 is a synthetic GHRH analog studied in laboratory research involving growth hormone-releasing hormone receptor activity and related peptide signaling pathways.",
     price: 40.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/CJC-1295.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -103,11 +103,11 @@ const products = [
   // PRODUCT 08
   {
     id: 8,
-    name: 'Sermorelin 10mg',
+    name: 'Sermorelin',
     tier: "High",
     desc: "Sermorelin is a GHRH-related peptide studied for its interaction with GHRH receptors and associated endocrine signaling mechanisms.",
     price: 40.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/SERMORELIN.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -115,11 +115,11 @@ const products = [
   // PRODUCT 09
   {
     id: 9,
-    name: 'GHRP-2 10mg',
+    name: 'GHRP-2',
     tier: "High",
     desc: "GHRP-2 is a synthetic growth hormone-releasing peptide studied in research involving growth hormone secretagogue receptors and associated signaling pathways.",
     price: 50.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/GHRP-2.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -127,11 +127,11 @@ const products = [
   // PRODUCT 10
   {
     id: 10,
-    name: 'GHRP-6 10mg',
+    name: 'GHRP-6',
     tier: "High",
     desc: "GHRP-6 is a synthetic peptide investigated in laboratory models involving growth hormone secretagogue receptor activity and related endocrine signaling pathways.",
     price: 50.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/GHRP-6.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -139,11 +139,11 @@ const products = [
   // PRODUCT 11
   {
     id: 11,
-    name: 'BPC-157 15mg',
+    name: 'BPC-157',
     tier: "Extreme",
     desc: "BPC-157 is an experimental peptide investigated in preclinical research involving cellular signaling, tissue-response mechanisms, and biological repair pathways.",
     price: 50.00,
-    size: "Single Vial",
+    size: "15mg",
     productImage: "assets/BPC-157.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -151,11 +151,11 @@ const products = [
   // PRODUCT 12
   {
     id: 12,
-    name: 'TB-500 15mg',
+    name: 'TB-500',
     tier: "Extreme",
     desc: "TB-500 is a synthetic peptide related to thymosin beta-4 and studied in laboratory research involving cellular migration, actin regulation, and tissue-response pathways.",
     price: 70.00,
-    size: "Single Vial",
+    size: "15mg",
     productImage: "assets/TB-500.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -163,11 +163,11 @@ const products = [
   // PRODUCT 13
   {
     id: 13,
-    name: 'GHK-Cu 50mg',
+    name: 'GHK-Cu',
     tier: "Low",
     desc: "GHK-Cu is a naturally occurring copper-binding peptide studied in research involving cellular signaling, extracellular matrix activity, and copper-dependent biological processes.",
     price: 40.00,
-    size: "Single Vial",
+    size: "50mg",
     productImage: "assets/GHK-Cu.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -175,11 +175,11 @@ const products = [
   // PRODUCT 14
   {
     id: 14,
-    name: 'KPV 10mg',
+    name: 'KPV',
     tier: "Low",
     desc: "KPV is a short peptide fragment derived from alpha-melanocyte-stimulating hormone (alpha-MSH) and studied in laboratory models involving inflammatory signaling and cellular-response pathways.",
     price: 40.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/KPV.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -187,11 +187,11 @@ const products = [
   // PRODUCT 15
   {
     id: 15,
-    name: 'Semax 10mg',
+    name: 'Semax',
     tier: "Low",
     desc: "Semax is a synthetic peptide investigated in experimental research involving neurological signaling, neurotrophic pathways, and neuroplasticity-related mechanisms.",
     price: 50.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/SEMAX.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -199,11 +199,11 @@ const products = [
   // PRODUCT 16
   {
     id: 16,
-    name: 'Selank 10mg',
+    name: 'Selank',
     tier: "Low",
     desc: "Selank is a synthetic peptide studied in experimental research involving neurological, neurotransmitter, and immune-signaling pathways.",
     price: 50.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/SELANK.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -211,11 +211,11 @@ const products = [
   // PRODUCT 17
   {
     id: 17,
-    name: 'SNAP-8 10mg',
+    name: 'SNAP-8',
     tier: "Low",
     desc: "Acetyl Octapeptide-3, commonly known as SNAP-8, is a synthetic octapeptide studied in cosmetic and laboratory research involving peptide signaling and mechanisms associated with facial expression lines.",
     price: 40.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/SNAP-8.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -237,11 +237,11 @@ const products = [
   // PRODUCT 19
   {
     id: 19,
-    name: 'Epithalon 10mg',
+    name: 'Epithalon',
     tier: "Low",
     desc: "Epithalon is a synthetic tetrapeptide studied experimentally in research involving cellular aging, circadian biology, and telomere-associated mechanisms.",
     price: 40.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/EPITHALON.png",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -263,11 +263,11 @@ const products = [
   // PRODUCT 21
   {
     id: 21,
-    name: 'Thymosin Alpha-1 10mg',
+    name: 'Thymosin Alpha-1',
     tier: "Low",
     desc: "Thymosin Alpha-1 is a peptide studied in laboratory research involving immune-system signaling, T-cell activity, cytokine regulation, and other immune-response pathways.",
     price: 60.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/THYMOSIN ALPHA-1.png",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -275,11 +275,11 @@ const products = [
   // PRODUCT 22
   {
     id: 22,
-    name: 'PT-141 10mg',
+    name: 'PT-141',
     tier: "High",
-    desc: "PT-141, also known as bremelanotide, isa melanocortin receptor agonist studied in research involving melanocortin receptor signaling and associated neurological pathways.",
+    desc: "PT-141, also known as Bremelanotide, is a melanocortin receptor agonist studied in research involving melanocortin receptor signaling and associated neurological pathways.",
     price: 40.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/PT-141.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -287,11 +287,11 @@ const products = [
   // PRODUCT 23
   {
     id: 23,
-    name: 'Kisspeptin 5mg',
+    name: 'Kisspeptin',
     tier: "High",
     desc: "Kisspeptin is a naturally occurring peptide studied for its interaction with the KISS 1 receptor and its role in reproductive and neuroendocrine signaling research.",
     price: 50.00,
-    size: "Single Vial",
+    size: "5mg",
     productImage: "assets/KISSPEPTIN.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -299,11 +299,11 @@ const products = [
   // PRODUCT 24
   {
     id: 24,
-    name: 'Melanotan I 10mg',
+    name: 'Melanotan I',
     tier: "Extreme",
     desc: "Melanotan I is a synthetic analog of alpha-melanocyte-stimulating hormone studied in research involving melanocortin receptors and pigmentation-related signaling pathways.",
     price: 40.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/MELANOTAN.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -311,11 +311,11 @@ const products = [
   // PRODUCT 25
   {
     id: 25,
-    name: 'Melanotan II 10mg',
+    name: 'Melanotan II',
     tier: "Extreme",
     desc: "Melanotan II is a synthetic melanocortin peptide investigated in laboratory research involving melanocortin receptor activity and associated cellular signaling pathways.",
     price: 40.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/MELANOTAN.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -323,11 +323,11 @@ const products = [
   // PRODUCT 26
   {
     id: 26,
-    name: 'DSIP 10mg',
+    name: 'DSIP',
     tier: "Low",
     desc: "DSIP is a peptide studied experimentally in research involving neurological signaling, sleep-associated mechanisms, and neuroendocrine pathways.",
     price: 60.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/DSIP.png",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -335,11 +335,11 @@ const products = [
   // PRODUCT 27
   {
     id: 27,
-    name: 'VIP 10mg',
+    name: 'VIP',
     tier: "High",
     desc: "VIP is a naturally occurring neuropeptide studied for its involvement in cellular communication, immune signaling, vascular biology, and neuroendocrine pathways.",
     price: 60.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/VIP.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -347,11 +347,11 @@ const products = [
   // PRODUCT 28
   {
     id: 28,
-    name: 'Dihexa 10mg',
+    name: 'Dihexa',
     tier: "Low",
     desc: "Dihexa is an experimental research compound investigated primarily in preclinical neurological research involving synaptic signaling and neuroplasticity-related pathways.",
     price: 60.00,
-    size: "Single Vial",
+    size: "10mg",
     productImage: "assets/DIHEXA.png",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -359,11 +359,11 @@ const products = [
   // PRODUCT 29
   {
     id: 29,
-    name: 'GLOW (GHK-Cu / TB-500 / BPC-157) 50/10/10mg',
+    name: 'GLOW (GHK-Cu / TB-500 / BPC-157)',
     tier: "Extreme",
     desc: "GLOW is a three-peptide research blend combining GHK-Cu, TB-500, and BPC-157 for laboratory investigation of cellular signaling, extracellular matrix activity, cellular migration, and related biological response pathways.",
     price: 80.00,
-    size: "Single Vial",
+    size: "50/10/10mg",
     productImage: "assets/GLOW.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -371,11 +371,11 @@ const products = [
   // PRODUCT 30
   {
     id: 30,
-    name: 'Wolverine Stack (BPC-157 / TB-500) 10/10mg',
+    name: 'Wolverine Stack (BPC-157 / TB-500)',
     tier: "Extreme",
     desc: "Wolverine is a dual-peptide research blend combining BPC-157 and TB-500 for laboratory investigation of cellular signaling, cellular migration, and tissue-response pathways.",
     price: 80.00,
-    size: "Single Vial",
+    size: "10/10mg",
     productImage: "assets/Wolverine.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -383,11 +383,11 @@ const products = [
   // PRODUCT 31
   {
     id: 31,
-    name: 'CJC-1295 (no DAC / Ipamorelin) 10/10mg',
+    name: 'CJC-1295 (no DAC / Ipamorelin)',
     tier: "High",
     desc: "This dual-peptide research blend combines CJC-1295 No DAC, a GHRH analog, with Ipamorelin, a growth hormone secretagogue receptor agonist, for laboratory investigation of complementary peptide-signaling pathways.",
     price: 60.00,
-    size: "Single Vial",
+    size: "10/10mg",
     productImage: "assets/CJC-1295 NO DAC.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
@@ -395,11 +395,11 @@ const products = [
   // PRODUCT 32
   {
     id: 32,
-    name: 'KLOW-Cu (GHK-Cu / KPV / TB-500 / BPC-157) 50/10/10/10mg',
+    name: 'KLOW-Cu (GHK-Cu / KPV / TB-500 / BPC-157)',
     tier: "Extreme",
     desc: "KLOW-Cu is a four-peptide research blend combining GHK-Cu, KPV, TB-500, and BPC-157 for laboratory investigation of cellular signaling, extracellular matrix activity, cellular migration, and biological-response pathways.",
     price: 100.00,
-    size: "Single Vial",
+    size: "50/10/10/10mg",
     productImage: "assets/KLOW.jpg",
     coaImage: "assets/coa-placeholder.svg"
   }
