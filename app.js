@@ -374,7 +374,7 @@ const products = [
     name: 'Wolverine Stack (BPC-157 / TB-500)',
     tier: "Extreme",
     desc: "Wolverine is a dual-peptide research blend combining BPC-157 and TB-500 for laboratory investigation of cellular signaling, cellular migration, and tissue-response pathways.",
-    price: 80.00,
+    price: 75.00,
     size: "10/10mg",
     productImage: "assets/Wolverine.jpg",
     coaImage: "assets/coa-placeholder.svg"
