@@ -547,10 +547,6 @@ async function renderAccountState(){
  if(user){if(loggedOut)loggedOut.hidden=true;if(loggedIn)loggedIn.hidden=false;if(title)title.textContent='My Account';const meta=user.user_metadata||{};const email=document.querySelector('#accountEmail'),name=document.querySelector('#accountName'),type=document.querySelector('#accountResearcherType'),elig=document.querySelector('#accountEligibility');if(email)email.textContent=user.email||'—';if(name)name.textContent=meta.name||'—';if(type)type.textContent=meta.researcher_type||'—';if(elig)elig.textContent=(meta.age_confirmed&&meta.research_use_confirmed&&meta.terms_accepted)?'Verified':'Review required';localStorage.setItem('hlxCustomerEmail',user.email||'');renderAccountOrders(user)}
  else{if(loggedOut)loggedOut.hidden=false;if(loggedIn)loggedIn.hidden=true;if(title)title.textContent='Sign in'}
 }
-async function syncHomeHero(){
- const img=document.querySelector('#homeHeroImage');if(!img||!hlxSupabase)return;
- try{const {data:{user}}=await hlxSupabase.auth.getUser();img.src=user?'assets/home-hero.jpeg':'assets/PHOTO-2026-09-28-17-06-51.jpg'}catch(e){}
-}
 function syncProtectedLinksWithAuth(user){
  const protectedPages=new Set(['shop.html','coa.html','contact.html','cart.html','product.html','faq.html','shipping.html','order-confirmation.html']);
  document.querySelectorAll('a[href]').forEach(a=>{try{const u=new URL(a.getAttribute('href'),location.href);const page=(u.pathname.split('/').pop()||'index.html').toLowerCase();if(!protectedPages.has(page))return;if(user){if(a.dataset.hlxOriginalHref)a.setAttribute('href',a.dataset.hlxOriginalHref)}else{if(!a.dataset.hlxOriginalHref)a.dataset.hlxOriginalHref=a.getAttribute('href');a.setAttribute('href','account.html?next='+encodeURIComponent(page+u.search))}}catch(e){}})
@@ -558,7 +554,7 @@ function syncProtectedLinksWithAuth(user){
 function initHLXAuth(){const create=document.querySelector('#createAccountForm');if(create)create.addEventListener('submit',createHLXAccount);const login=document.querySelector('#loginForm');if(login)login.addEventListener('submit',loginHLXAccount);document.querySelector('#forgotPasswordLink')?.addEventListener('click',requestPasswordReset);document.querySelector('#passwordResetForm')?.addEventListener('submit',updateHLXPassword);const logout=document.querySelector('#logoutBtn');if(logout)logout.addEventListener('click',signOutHLX);if(new URLSearchParams(location.search).get('recovery')==='1')document.querySelector('#passwordResetPanel')?.removeAttribute('hidden');if(hlxSupabase){hlxSupabase.auth.getUser().then(({data})=>syncProtectedLinksWithAuth(data?.user||null));hlxSupabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY')document.querySelector('#passwordResetPanel')?.removeAttribute('hidden');syncProtectedLinksWithAuth(session?.user||null)})}renderAccountState()}
 function demoAuth(e,type){return type==='create'?createHLXAccount(e):loginHLXAccount(e)}
 enforceAccountGateway();
-document.addEventListener('DOMContentLoaded',()=>{updateCount();initShopControls();renderProducts();renderCart();initHLXAuth();syncHomeHero()});
+document.addEventListener('DOMContentLoaded',()=>{updateCount();initShopControls();renderProducts();renderCart();initHLXAuth()});
 
 function initAccessGate(){
   if(sessionStorage.getItem('hlxAccessAccepted')==='true') return;
