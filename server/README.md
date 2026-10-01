@@ -27,3 +27,10 @@ The script writes returned TagadaPay product/variant/price IDs to
 Do not run the creation command repeatedly: the TagadaPay create-product endpoint can create duplicate products.
 
 The storefront can remain on GitHub Pages, but live checkout must call a secure server/serverless backend so the TagadaPay token remains private.
+
+
+## Supabase permanent order history
+
+Run `server/supabase-orders.sql` once in the Supabase SQL Editor. The migration creates `public.orders`, enables RLS, revokes browser writes, and grants authenticated customers SELECT access only to rows where `auth.uid() = user_id`.
+
+The storefront account page now reads this table directly with the signed-in Supabase session. Do not add a browser INSERT policy: verified TagadaPay orders should be inserted by the trusted webhook/backend using a server-side Supabase secret/service-role credential. Never expose that credential in `app.js` or GitHub Pages.
