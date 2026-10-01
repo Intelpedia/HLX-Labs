@@ -491,35 +491,53 @@ function renderCart(){
 function changeQtyByIndex(i,d){let c=getCart();if(!c[i])return;c[i].qty+=d;if(c[i].qty<=0)c.splice(i,1);saveCart(c);renderCart()}
 function removeItemByIndex(i){let c=getCart();c.splice(i,1);saveCart(c);renderCart()}
 
-// CLIENT-SIDE ACCESS GATE (preview until hosted authentication is configured)
-function enforceAccountGateway(){
-  const page=(location.pathname.split('/').pop()||'index.html').toLowerCase();
-  const publicPages=new Set(['','index.html','account.html','create-account.html','terms.html','privacy.html']);
-  if(publicPages.has(page))return;
-  let user=null;try{user=JSON.parse(localStorage.getItem('hlxCurrentUser')||'null')}catch(e){}
-  if(!user||!user.email){const next=encodeURIComponent(page+location.search);location.replace('account.html?next='+next);}
-}
-enforceAccountGateway();
-
-// LOCAL ACCOUNT PREVIEW SYSTEM
-// Functional for testing in this browser. Replace with hosted authentication before launch.
-const HLX_ACCOUNT_KEY='hlxLocalAccounts';
-const HLX_SESSION_KEY='hlxCurrentUser';
+// SUPABASE AUTHENTICATION
+const HLX_SUPABASE_URL='https://ttmwcwuzrqemsqfwkkyw.supabase.co';
+const HLX_SUPABASE_PUBLISHABLE_KEY='sb_publishable_iqgOzPVIKBA0C1hnGGVAFw_qhycszJa';
+const hlxSupabase=window.supabase?.createClient(HLX_SUPABASE_URL,HLX_SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 function authMessage(message,isError=false){const el=document.querySelector('#authMsg');if(!el)return;el.textContent=message;el.classList.toggle('auth-error',!!isError);el.classList.toggle('auth-success',!isError&&!!message)}
-function getLocalAccounts(){try{return JSON.parse(localStorage.getItem(HLX_ACCOUNT_KEY)||'[]')}catch(e){return []}}
-function bytesToHex(bytes){return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('')}
-function randomSalt(){const bytes=new Uint8Array(16);crypto.getRandomValues(bytes);return bytesToHex(bytes)}
-async function hashPassword(password,salt){const data=new TextEncoder().encode(`${salt}:${password}`);const digest=await crypto.subtle.digest('SHA-256',data);return bytesToHex(new Uint8Array(digest))}
-function currentUser(){try{return JSON.parse(localStorage.getItem(HLX_SESSION_KEY)||'null')}catch(e){return null}}
-function setCurrentUser(email){const user={email,loggedInAt:new Date().toISOString()};localStorage.setItem(HLX_SESSION_KEY,JSON.stringify(user));localStorage.setItem('hlxCustomerEmail',email);return user}
-function signOutHLX(){localStorage.removeItem(HLX_SESSION_KEY);location.href='account.html'}
-async function createLocalAccount(e){e.preventDefault();authMessage('');const form=e.currentTarget;const name=form.name.value.trim();const email=form.email.value.trim().toLowerCase();const researcherType=form.researcherType.value;const password=form.password.value;const confirm=form.passwordConfirm.value;if(!name||!email||!researcherType){authMessage('Please complete all required account information.',true);return}if(!form.ageConfirmed.checked||!form.researchUseConfirmed.checked||!form.termsAccepted.checked){authMessage('All eligibility confirmations are required to create an account.',true);return}if(password!==confirm){authMessage('Passwords do not match.',true);return}if(password.length<8){authMessage('Password must be at least 8 characters.',true);return}const accounts=getLocalAccounts();if(accounts.some(a=>a.email===email)){authMessage('An account with that email already exists. Please sign in.',true);return}try{const salt=randomSalt();const passwordHash=await hashPassword(password,salt);accounts.push({name,email,researcherType,ageConfirmed:true,researchUseConfirmed:true,termsAccepted:true,salt,passwordHash,createdAt:new Date().toISOString()});localStorage.setItem(HLX_ACCOUNT_KEY,JSON.stringify(accounts));setCurrentUser(email);authMessage('Account created successfully. Redirecting to the shop…');setTimeout(()=>location.href='shop.html',350)}catch(err){authMessage('Account creation could not be completed in this browser.',true)}}
-async function loginLocalAccount(e){e.preventDefault();authMessage('');const form=e.currentTarget;const email=form.email.value.trim().toLowerCase();const password=form.password.value;const account=getLocalAccounts().find(a=>a.email===email);if(!account){authMessage('No account was found for that email.',true);return}try{const enteredHash=await hashPassword(password,account.salt);if(enteredHash!==account.passwordHash){authMessage('Incorrect password.',true);return}setCurrentUser(email);authMessage('Signed in successfully. Redirecting to the shop…');setTimeout(()=>location.href='shop.html',350)}catch(err){authMessage('Sign-in could not be completed in this browser.',true)}}
-function renderAccountState(){const loggedOut=document.querySelector('#accountLoggedOut'),loggedIn=document.querySelector('#accountLoggedIn');if(!loggedOut&&!loggedIn)return;const user=currentUser();const title=document.querySelector('#accountTitle');if(user){if(loggedOut)loggedOut.hidden=true;if(loggedIn)loggedIn.hidden=false;if(title)title.textContent='My Account';const email=document.querySelector('#accountEmail');if(email)email.textContent=user.email}else{if(loggedOut)loggedOut.hidden=false;if(loggedIn)loggedIn.hidden=true;if(title)title.textContent='Sign in'}}
-function initLocalAuth(){const create=document.querySelector('#createAccountForm');if(create)create.addEventListener('submit',createLocalAccount);const login=document.querySelector('#loginForm');if(login)login.addEventListener('submit',loginLocalAccount);const logout=document.querySelector('#logoutBtn');if(logout)logout.addEventListener('click',signOutHLX);renderAccountState()}
-function demoAuth(e,type){if(type==='create')return createLocalAccount(e);return loginLocalAccount(e)}
-document.addEventListener('DOMContentLoaded',()=>{updateCount();initShopControls();renderProducts();renderCart();initLocalAuth()});
-
+function authNext(){const next=new URLSearchParams(location.search).get('next');return next&&/^[a-z0-9._?=&%-]+$/i.test(next)&&!next.includes('..')?next:'shop.html'}
+async function enforceAccountGateway(){
+ const page=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+ const publicPages=new Set(['','index.html','account.html','create-account.html','terms.html','privacy.html']);
+ if(publicPages.has(page)||!hlxSupabase)return;
+ const {data:{user},error}=await hlxSupabase.auth.getUser();
+ if(error||!user){const next=encodeURIComponent(page+location.search);location.replace('account.html?next='+next)}
+}
+async function createHLXAccount(e){
+ e.preventDefault();authMessage('');
+ if(!hlxSupabase){authMessage('Authentication service failed to load. Please refresh and try again.',true);return}
+ const f=e.currentTarget,name=f.name.value.trim(),email=f.email.value.trim().toLowerCase(),researcherType=f.researcherType.value,password=f.password.value,confirm=f.passwordConfirm.value;
+ if(!name||!email||!researcherType){authMessage('Please complete all required account information.',true);return}
+ if(!f.ageConfirmed.checked||!f.researchUseConfirmed.checked||!f.termsAccepted.checked){authMessage('All eligibility confirmations are required to create an account.',true);return}
+ if(password!==confirm){authMessage('Passwords do not match.',true);return}
+ if(password.length<8){authMessage('Password must be at least 8 characters.',true);return}
+ const acceptedAt=new Date().toISOString();
+ const {data,error}=await hlxSupabase.auth.signUp({email,password,options:{emailRedirectTo:new URL('account.html',location.href).href,data:{name,researcher_type:researcherType,age_confirmed:true,research_use_confirmed:true,terms_accepted:true,eligibility_accepted_at:acceptedAt}}});
+ if(error){authMessage(error.message||'Account creation failed. Please try again.',true);return}
+ if(data.session){localStorage.setItem('hlxCustomerEmail',email);authMessage('Account created successfully. Redirecting to the shop…');setTimeout(()=>location.href=authNext(),500)}
+ else authMessage('Account created. Check your email to confirm your address, then sign in.')
+}
+async function loginHLXAccount(e){
+ e.preventDefault();authMessage('');
+ if(!hlxSupabase){authMessage('Authentication service failed to load. Please refresh and try again.',true);return}
+ const f=e.currentTarget,email=f.email.value.trim().toLowerCase(),password=f.password.value;
+ const {data,error}=await hlxSupabase.auth.signInWithPassword({email,password});
+ if(error){authMessage(error.message||'Sign-in failed. Check your email and password.',true);return}
+ localStorage.setItem('hlxCustomerEmail',data.user?.email||email);authMessage('Signed in successfully. Redirecting…');setTimeout(()=>location.href=authNext(),400)
+}
+async function signOutHLX(){if(hlxSupabase)await hlxSupabase.auth.signOut();localStorage.removeItem('hlxCustomerEmail');location.href='account.html'}
+async function renderAccountState(){
+ const loggedOut=document.querySelector('#accountLoggedOut'),loggedIn=document.querySelector('#accountLoggedIn');if(!loggedOut&&!loggedIn)return;
+ const {data:{user}}=hlxSupabase?await hlxSupabase.auth.getUser():{data:{user:null}};
+ const title=document.querySelector('#accountTitle');
+ if(user){if(loggedOut)loggedOut.hidden=true;if(loggedIn)loggedIn.hidden=false;if(title)title.textContent='My Account';const email=document.querySelector('#accountEmail');if(email)email.textContent=user.email||'';localStorage.setItem('hlxCustomerEmail',user.email||'')}
+ else{if(loggedOut)loggedOut.hidden=false;if(loggedIn)loggedIn.hidden=true;if(title)title.textContent='Sign in'}
+}
+function initHLXAuth(){const create=document.querySelector('#createAccountForm');if(create)create.addEventListener('submit',createHLXAccount);const login=document.querySelector('#loginForm');if(login)login.addEventListener('submit',loginHLXAccount);const logout=document.querySelector('#logoutBtn');if(logout)logout.addEventListener('click',signOutHLX);renderAccountState()}
+function demoAuth(e,type){return type==='create'?createHLXAccount(e):loginHLXAccount(e)}
+enforceAccountGateway();
+document.addEventListener('DOMContentLoaded',()=>{updateCount();initShopControls();renderProducts();renderCart();initHLXAuth()});
 
 function initAccessGate(){
   if(sessionStorage.getItem('hlxAccessAccepted')==='true') return;
