@@ -101,3 +101,6 @@
 /* Homepage account-access hero hotspot: 1536x1024 source artwork */
 .hero-replica .hero-hotspot.shop{left:16.2%;top:73.1%;width:66.2%;height:10.2%;border-radius:10px}
 .hero-replica .hero-hotspot.shop:focus-visible{outline:3px solid #fff;outline-offset:3px}
+
+/* HLX researcher profile and password recovery */
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 24px}.profile-grid>div{padding:15px;background:#080808;border:1px solid #292929;border-radius:9px}.profile-grid span{display:block;color:#999;font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;margin-bottom:6px}.profile-grid strong{font-size:14px;line-height:1.4}.password-reset-panel{margin-top:18px}.password-reset-panel>p{color:var(--muted)}@media(max-width:600px){.profile-grid{grid-template-columns:1fr}}
