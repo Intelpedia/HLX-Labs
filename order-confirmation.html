@@ -3,10 +3,22 @@
 <head><script>
 (function(){
   var page=(location.pathname.split('/').pop()||'index.html')+location.search;
-  document.documentElement.style.visibility='hidden';
-  window.__hlxAuthGuardTimer=setTimeout(function(){
+  var hasSession=false;
+  try{
+    for(var i=0;i<localStorage.length;i++){
+      var key=localStorage.key(i)||'';
+      if(key.indexOf('sb-')===0 && key.endsWith('-auth-token')){
+        var raw=localStorage.getItem(key), parsed=raw&&JSON.parse(raw);
+        var token=parsed&&((parsed.access_token)||(parsed.currentSession&&parsed.currentSession.access_token));
+        var expires=parsed&&((parsed.expires_at)||(parsed.currentSession&&parsed.currentSession.expires_at));
+        if(token && (!expires || Number(expires)*1000>Date.now())){hasSession=true;break}
+      }
+    }
+  }catch(e){}
+  if(!hasSession){
     location.replace('account.html?next='+encodeURIComponent(page));
-  },4000);
+    document.write('<style>html{display:none!important}</style>');
+  }
 })();
 </script>
   <meta charset="utf-8">
@@ -51,21 +63,6 @@
     </div>
   </section>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
-(async function(){
-  try{
-    if(!window.supabase) throw new Error('Supabase failed to load');
-    var client=window.supabase.createClient('https://ttmwcwuzrqemsqfwkkyw.supabase.co','sb_publishable_iqgOzPVIKBA0C1hnGGVAFw_qhycszJa',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-    var result=await client.auth.getUser();
-    if(!result.data||!result.data.user) throw new Error('No authenticated user');
-    clearTimeout(window.__hlxAuthGuardTimer);
-    document.documentElement.style.visibility='';
-  }catch(e){
-    clearTimeout(window.__hlxAuthGuardTimer);
-    var page=(location.pathname.split('/').pop()||'index.html')+location.search;
-    location.replace('account.html?next='+encodeURIComponent(page));
-  }
-})();
-</script><script src="app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js"></script>
 </body>
 </html>
