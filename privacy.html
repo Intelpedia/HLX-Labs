@@ -10,4 +10,32 @@
     <div class="footer-links-block"><h3>COMPANY</h3><a href="index.html#about">Our Story</a><a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a></div>
   </div>
   <div class="footer-bottom"><span>© 2026 HLX Labs. All Rights Reserved.</span><span>Products and information are intended for laboratory research use only.</span></div>
-</footer><script src="app.js"></script></body></html>
+</footer><script src="app.js"></script><script>
+(function(){
+  var protectedPages=new Set(['shop.html','coa.html','contact.html','cart.html','product.html','faq.html','shipping.html','order-confirmation.html']);
+  function hasHLXSession(){
+    try{
+      for(var i=0;i<localStorage.length;i++){
+        var key=localStorage.key(i)||'';
+        if(key.indexOf('sb-')===0 && key.endsWith('-auth-token')){
+          var parsed=JSON.parse(localStorage.getItem(key)||'null');
+          var token=parsed&&((parsed.access_token)||(parsed.currentSession&&parsed.currentSession.access_token));
+          var expires=parsed&&((parsed.expires_at)||(parsed.currentSession&&parsed.currentSession.expires_at));
+          if(token&&(!expires||Number(expires)*1000>Date.now()))return true;
+        }
+      }
+    }catch(e){}
+    return false;
+  }
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;
+    var url;try{url=new URL(a.getAttribute('href'),location.href)}catch(err){return}
+    if(url.origin!==location.origin)return;
+    var page=(url.pathname.split('/').pop()||'index.html').toLowerCase();
+    if(protectedPages.has(page)&&!hasHLXSession()){
+      e.preventDefault();
+      location.href='account.html?next='+encodeURIComponent(page+url.search);
+    }
+  },true);
+})();
+</script></body></html>
