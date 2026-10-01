@@ -97,3 +97,7 @@
 .researcher-gateway h3,.gateway-page .auth-card h3{text-transform:uppercase;letter-spacing:.08em}.researcher-gateway .field input,.researcher-gateway .field select,.gateway-page .auth-card .field input{background:#050505;border:1px solid #333;transition:border-color .2s,box-shadow .2s}.researcher-gateway .field input:focus,.researcher-gateway .field select:focus,.gateway-page .auth-card .field input:focus{outline:none;border-color:#d51d1d;box-shadow:0 0 0 3px rgba(213,29,29,.12)}
 .researcher-confirmations{padding:18px;background:rgba(255,255,255,.025);border:1px solid #292929;border-radius:10px}.gateway-check+.gateway-check{border-top:1px solid #252525;padding-top:14px}.gateway-buttons .primary{background:linear-gradient(180deg,#d51d1d,#8d0000);border-color:#f13b3b;box-shadow:0 0 20px rgba(210,0,0,.18)}.gateway-leave{background:transparent!important}.gateway-page .notice{margin:16px auto 0;max-width:680px;text-align:center}
 @media(max-width:600px){.gateway-page{padding:32px 14px}.gateway-brand img{width:48px;height:48px}.gateway-brand strong{font-size:20px}}
+
+/* Homepage account-access hero hotspot: 1536x1024 source artwork */
+.hero-replica .hero-hotspot.shop{left:16.2%;top:73.1%;width:66.2%;height:10.2%;border-radius:10px}
+.hero-replica .hero-hotspot.shop:focus-visible{outline:3px solid #fff;outline-offset:3px}
