@@ -491,6 +491,16 @@ function renderCart(){
 function changeQtyByIndex(i,d){let c=getCart();if(!c[i])return;c[i].qty+=d;if(c[i].qty<=0)c.splice(i,1);saveCart(c);renderCart()}
 function removeItemByIndex(i){let c=getCart();c.splice(i,1);saveCart(c);renderCart()}
 
+// CLIENT-SIDE ACCESS GATE (preview until hosted authentication is configured)
+function enforceAccountGateway(){
+  const page=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+  const publicPages=new Set(['','index.html','account.html','create-account.html','terms.html','privacy.html']);
+  if(publicPages.has(page))return;
+  let user=null;try{user=JSON.parse(localStorage.getItem('hlxCurrentUser')||'null')}catch(e){}
+  if(!user||!user.email){const next=encodeURIComponent(page+location.search);location.replace('account.html?next='+next);}
+}
+enforceAccountGateway();
+
 // LOCAL ACCOUNT PREVIEW SYSTEM
 // Functional for testing in this browser. Replace with hosted authentication before launch.
 const HLX_ACCOUNT_KEY='hlxLocalAccounts';
