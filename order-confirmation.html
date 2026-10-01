@@ -64,5 +64,11 @@
   </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js"></script>
-</body>
+<script>
+(function(){
+ var protectedPages=new Set(['shop.html','coa.html','contact.html','cart.html','product.html','faq.html','shipping.html','order-confirmation.html']);
+ function hasHLXSession(){try{for(var i=0;i<localStorage.length;i++){var key=localStorage.key(i)||'';if(key.indexOf('sb-')===0&&key.endsWith('-auth-token')){var p=JSON.parse(localStorage.getItem(key)||'null');var t=p&&((p.access_token)||(p.currentSession&&p.currentSession.access_token));var x=p&&((p.expires_at)||(p.currentSession&&p.currentSession.expires_at));if(t&&(!x||Number(x)*1000>Date.now()))return true}}}catch(e){}return false}
+ document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;var u;try{u=new URL(a.getAttribute('href'),location.href)}catch(err){return}if(u.origin!==location.origin)return;var page=(u.pathname.split('/').pop()||'index.html').toLowerCase();if(protectedPages.has(page)&&!hasHLXSession()){e.preventDefault();location.href='account.html?next='+encodeURIComponent(page+u.search)}},true);
+})();
+</script></body>
 </html>
