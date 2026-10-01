@@ -531,15 +531,15 @@ async function updateHLXPassword(e){e.preventDefault();if(!hlxSupabase)return;co
 async function signOutHLX(){if(hlxSupabase)await hlxSupabase.auth.signOut();localStorage.removeItem('hlxCustomerEmail');location.href='account.html'}
 function escapeHLX(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 async function renderAccountOrders(user){
- const root=document.querySelector('#accountOrdersList'),count=document.querySelector('#accountOrderCount');if(!root||!user)return;
- // Transitional order-history reader. Existing verified orders are matched to the signed-in account.
- // When TagadaPay webhooks are live, this UI can read the same normalized order shape from the backend.
- let orders=[];try{orders=JSON.parse(localStorage.getItem('hlxOrders')||'[]')}catch(e){}
- const email=(user.email||'').toLowerCase();orders=orders.filter(o=>(o.customerEmail||'').toLowerCase()===email);
+ const root=document.querySelector('#accountOrdersList'),count=document.querySelector('#accountOrderCount');if(!root||!user||!hlxSupabase)return;
+ root.innerHTML='<p class="order-empty">Loading orders…</p>';
+ const {data:orders,error}=await hlxSupabase.from('orders').select('id,order_number,created_at,payment_status,transaction_id,currency,total,items').eq('user_id',user.id).order('created_at',{ascending:false});
+ if(error){console.error('HLX order history:',error);root.innerHTML='<div class="order-empty"><strong>Order history unavailable.</strong><span>Please try again shortly.</span></div>';return}
  if(count)count.textContent=`${orders.length} ORDER${orders.length===1?'':'S'}`;
  if(!orders.length){root.innerHTML='<div class="order-empty"><strong>No orders yet.</strong><span>Completed HLX Labs orders tied to this account will appear here.</span><a class="btn" href="shop.html">SHOP PRODUCTS</a></div>';return}
- root.innerHTML=orders.map((o,i)=>{const d=new Date(o.createdAt),items=Array.isArray(o.items)?o.items:[];return `<details class="account-order" ${i===0?'open':''}><summary><div><strong>${escapeHLX(o.orderNumber||'HLX Order')}</strong><span>${Number.isNaN(d.getTime())?'':d.toLocaleDateString([], {year:'numeric',month:'short',day:'numeric'})}</span></div><div class="order-summary-right"><span class="order-status">${escapeHLX(o.paymentStatus||'Paid')}</span><strong>${Number(o.total||0).toFixed(2)}</strong></div></summary><div class="account-order-detail"><div class="order-meta"><span>Transaction <strong>${escapeHLX(o.transactionId||'—')}</strong></span><span>${items.reduce((n,x)=>n+(Number(x.qty)||1),0)} item(s)</span></div>${items.map(item=>`<div class="account-order-item"><div><strong>${escapeHLX(item.name)}</strong><span>${escapeHLX(item.selectedOption||'')}</span></div><span>Qty ${Number(item.qty)||1}</span><strong>${((Number(item.price)||0)*(Number(item.qty)||1)).toFixed(2)}</strong></div>`).join('')}</div></details>`}).join('')
+ root.innerHTML=orders.map((o,i)=>{const d=new Date(o.created_at),items=Array.isArray(o.items)?o.items:[];return `<details class="account-order" ${i===0?'open':''}><summary><div><strong>${escapeHLX(o.order_number||'HLX Order')}</strong><span>${Number.isNaN(d.getTime())?'':d.toLocaleDateString([], {year:'numeric',month:'short',day:'numeric'})}</span></div><div class="order-summary-right"><span class="order-status">${escapeHLX(o.payment_status||'Paid')}</span><strong>$${Number(o.total||0).toFixed(2)}</strong></div></summary><div class="account-order-detail"><div class="order-meta"><span>Transaction <strong>${escapeHLX(o.transaction_id||'—')}</strong></span><span>${items.reduce((n,x)=>n+(Number(x.qty)||1),0)} item(s)</span></div>${items.map(item=>`<div class="account-order-item"><div><strong>${escapeHLX(item.name)}</strong><span>${escapeHLX(item.selectedOption||item.selected_option||'')}</span></div><span>Qty ${Number(item.qty)||1}</span><strong>$${((Number(item.price)||0)*(Number(item.qty)||1)).toFixed(2)}</strong></div>`).join('')}</div></details>`}).join('')
 }
+
 async function renderAccountState(){
  const loggedOut=document.querySelector('#accountLoggedOut'),loggedIn=document.querySelector('#accountLoggedIn');if(!loggedOut&&!loggedIn)return;
  const {data:{user}}=hlxSupabase?await hlxSupabase.auth.getUser():{data:{user:null}};
