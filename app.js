@@ -384,15 +384,17 @@ const products = [
     coaImage: "assets/coa-placeholder.svg"
   },
 
-  // PRODUCT 31
+ // PRODUCT 31
   {
     id: 31,
-    name: 'CJC-1295 (no DAC / Ipamorelin)',
+    name: 'CJC-1295-IPA',
     tier: "High",
-    desc: "This dual-peptide research blend combines CJC-1295 No DAC, a GHRH analog, with Ipamorelin, a growth hormone secretagogue receptor agonist, for laboratory investigation of complementary peptide-signaling pathways.",
-    price: 60.00,
-    size: "10/10mg",
-    productImage: "assets/CJC-1295 NO DAC.jpg",
+    desc: "CJC-1295-IPA is a research peptide combination featuring CJC-1295, a GHRH analog and, Ipamorelin, a growth hormone secretagogue.",
+   options: [
+      { label: "5/5mg", price: 70.00 },
+      { label: "10/10mg", price: 100.00 }
+    ],
+    productImage: "assets/CJC-1295-IPA.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
 
@@ -431,20 +433,6 @@ const products = [
     price: 85.00,
     size: "1mg",
     productImage: "assets/IGF-1 LR3.jpg",
-    coaImage: "assets/coa-placeholder.svg"
-  },
-
-  // PRODUCT 35
-  {
-    id: 35,
-    name: 'CJC-1295-IPA',
-    tier: "High",
-    desc: "CJC-1295-IPA is a research peptide combination featuring CJC-1295, a GHRH analog and, Ipamorelin, a growth hormone secretagogue.",
-   options: [
-      { label: "5/5mg", price: 70.00 },
-      { label: "10/10mg", price: 100.00 }
-    ],
-    productImage: "assets/CJC-1295-IPA.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
 ];
