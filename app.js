@@ -65,7 +65,7 @@ const products = [
     price: 80.00,
     size: "10mg",
     productImage: "assets/CAGRILINTIDE.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-26092402.jpg"
   },
 
   // PRODUCT 05
