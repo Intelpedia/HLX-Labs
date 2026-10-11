@@ -404,6 +404,19 @@ const products = [
     coaImage: "assets/coa-placeholder.svg"
   }
 
+  // PRODUCT 33
+  {
+    id: 33,
+    name: 'SS-31',
+    tier: "High",
+    desc: "SS-31 is a mitochondria-targeted peptide studied for its effects on cellular energy production, mitochondrial function, and oxidative stress.",
+   options: [
+      { label: "10mg", price: 50.00 },
+      { label: "30mg", price: 80.00 }
+    ],
+    productImage: "assets/KLOW.jpg",
+    coaImage: "assets/coa-placeholder.svg"
+  }
 ];
 const getCart=()=>JSON.parse(localStorage.getItem('hlxCart')||'[]'); const saveCart=c=>{localStorage.setItem('hlxCart',JSON.stringify(c)); updateCount()};
 function updateCount(){document.querySelectorAll('.cart-count').forEach(e=>e.textContent=getCart().reduce((s,x)=>s+x.qty,0))}
