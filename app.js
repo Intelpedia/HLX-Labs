@@ -416,7 +416,19 @@ const products = [
     ],
     productImage: "assets/SS-31.jpg",
     coaImage: "assets/coa-placeholder.svg"
-  }
+  },
+
+   // PRODUCT 33
+  {
+    id: 33,
+    name: 'IGF-1 LR3',
+    tier: "High",
+    desc: "IGF-1 LR3 is a modified growth factor peptide studied for its role in cellular growth, protein synthesis, tissue development, and metabolic signaling.",
+    price: 85.00,
+    size: "1mg",
+    productImage: "assets/IGF-1 LR3.jpg",
+    coaImage: "assets/coa-placeholder.svg"
+  },
 ];
 const getCart=()=>JSON.parse(localStorage.getItem('hlxCart')||'[]'); const saveCart=c=>{localStorage.setItem('hlxCart',JSON.stringify(c)); updateCount()};
 function updateCount(){document.querySelectorAll('.cart-count').forEach(e=>e.textContent=getCart().reduce((s,x)=>s+x.qty,0))}
