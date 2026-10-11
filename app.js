@@ -333,7 +333,7 @@ const products = [
     price: 60.00,
     size: "10mg",
     productImage: "assets/DSIP.png",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-26100202.jpg"
   },
 
   // PRODUCT 27
