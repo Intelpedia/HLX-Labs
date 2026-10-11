@@ -414,7 +414,7 @@ const products = [
       { label: "10mg", price: 50.00 },
       { label: "30mg", price: 80.00 }
     ],
-    productImage: "assets/KLOW.jpg",
+    productImage: "assets/SS-31.jpg",
     coaImage: "assets/coa-placeholder.svg"
   }
 ];
