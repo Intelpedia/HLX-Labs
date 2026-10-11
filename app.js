@@ -617,6 +617,12 @@ document.addEventListener('DOMContentLoaded',initAccessGate);
 
 // Contact form submission is handled by the hosting provider (Netlify Forms).
 
+// Add coaImages: [{size:"12mg",image:"assets/example.jpg"}, ...] to any product.
+// Existing coaImage values remain supported until replaced.
+function productCoas(p){
+ const entries=Array.isArray(p.coaImages)&&p.coaImages.length?p.coaImages:[p.coaImage];
+ return entries.map((entry,i)=>typeof entry==='string'?{image:entry,size:`COA ${i+1}`}:{image:entry?.image||entry?.src,size:entry?.size||entry?.label||`COA ${i+1}`}).filter(x=>x.image);
+}
 function renderProductDetail(){
   const el=document.querySelector('#productDetail');
   if(!el)return;
@@ -625,6 +631,8 @@ function renderProductDetail(){
   const related=products.filter(x=>x.id!==p.id).slice(0,5);
   const options=productOptions(p);
   const initialOption=options[0];
+  const coas=productCoas(p);
+  const gallery=[{src:p.productImage,alt:`${p.name} vial`,label:'Vial'},...coas.map(c=>({src:c.image,alt:`${p.name} ${c.size} Certificate of Analysis`,label:c.size}))];
   el.innerHTML=`
     <div class="product-breadcrumbs"><a href="index.html">Home</a><span>›</span><a href="shop.html">Shop</a><span>›</span><strong>${p.name}</strong></div>
     <div class="product-showcase">
@@ -633,12 +641,9 @@ function renderProductDetail(){
           <button class="gallery-arrow gallery-prev" type="button" aria-label="Previous image">‹</button>
           <img id="galleryMain" src="${p.productImage}" alt="${p.name} product image placeholder">
           <button class="gallery-arrow gallery-next" type="button" aria-label="Next image">›</button>
-          <div class="gallery-counter"><span id="galleryIndex">1</span> / 2</div>
+          <div class="gallery-counter"><span id="galleryIndex">1</span> / ${gallery.length}</div>
         </div>
-        <div class="gallery-thumbs">
-          <button class="gallery-thumb active" type="button" data-index="0"><img src="${p.productImage}" alt="${p.name} vial thumbnail"><span>Vial</span></button>
-          <button class="gallery-thumb" type="button" data-index="1"><img src="${p.coaImage}" alt="${p.name} COA thumbnail"><span>COA</span></button>
-        </div>
+        <div class="gallery-thumbs">${gallery.map((g,i)=>`<button class="gallery-thumb ${i===0?'active':''}" type="button" data-index="${i}"><img src="${g.src}" alt="${g.alt} thumbnail"><span>${g.label}</span></button>`).join('')}</div>
       </section>
       <section class="product-purchase">
         <div class="purchase-topline"><span class="research-label">RESEARCH PRODUCT</span><span class="tier-badge">${p.tier.toUpperCase()} TIER</span></div>
@@ -673,7 +678,7 @@ function renderProductDetail(){
       <div class="related-grid">${related.map(r=>{const rp=productOptions(r)[0]?.price??r.price??0;return `<a class="related-card" href="product.html?id=${r.id}"><img src="${r.productImage}" alt="${r.name} placeholder"><div><strong>${r.name}</strong><span>$${Number(rp).toFixed(2)}</span><em>${r.tier.toUpperCase()}</em></div></a>`}).join('')}</div>
     </section>`;
 
-  const images=[{src:p.productImage,alt:`${p.name} product image placeholder`},{src:p.coaImage,alt:`${p.name} Certificate of Analysis placeholder`}];
+  const images=gallery;
   let current=0,qty=1;
   const main=el.querySelector('#galleryMain'),counter=el.querySelector('#galleryIndex'),thumbs=[...el.querySelectorAll('.gallery-thumb')];
   const show=i=>{current=(i+images.length)%images.length;main.src=images[current].src;main.alt=images[current].alt;counter.textContent=current+1;thumbs.forEach((t,n)=>t.classList.toggle('active',n===current));};
@@ -707,13 +712,14 @@ function renderCoas(){
   const count=document.querySelector('#coaCount'); if(count)count.textContent=list.length;
   grid.innerHTML=list.map(p=>{
     const first=productOptions(p)[0];
+    const coas=productCoas(p);
     return `<article class="coa-card">
       <button class="coa-image-button" type="button" onclick="openCoa(${p.id})" aria-label="View ${p.name} COA">
-        <img src="${p.coaImage}" alt="${p.name} Certificate of Analysis" loading="lazy">
+        <img src="${coas[0]?.image||'assets/coa-placeholder.svg'}" alt="${p.name} Certificate of Analysis" loading="lazy">
       </button>
       <div class="coa-card-body">
         <h3>${p.name}</h3>
-        <div class="coa-option-label">${first?.label||p.size||'Single Vial'}</div>
+        <div class="coa-option-label">${coas.length} COA${coas.length===1?'':'s'} • ${coas.map(c=>c.size).join(', ')}</div>
         <span class="shop-tier-badge ${p.tier.toLowerCase()}">${p.tier.toUpperCase()} TIER</span>
         <button class="btn primary coa-view-btn" type="button" onclick="openCoa(${p.id})">▤ &nbsp; VIEW COA</button>
       </div>
@@ -721,12 +727,25 @@ function renderCoas(){
   }).join('');
   if(!list.length) grid.innerHTML='<div class="shop-empty">No COAs match your search or filter.</div>';
 }
+let activeCoaImages=[],activeCoaIndex=0,activeCoaProduct='';
+function showCoaImage(index){
+ if(!activeCoaImages.length)return;
+ activeCoaIndex=(index+activeCoaImages.length)%activeCoaImages.length;
+ const c=activeCoaImages[activeCoaIndex],img=document.querySelector('#coaLightboxImage'),title=document.querySelector('#coaLightboxTitle');
+ if(!img||!title)return;
+ img.src=c.image;img.alt=`${activeCoaProduct} ${c.size} Certificate of Analysis`;
+ title.textContent=`${activeCoaProduct} — ${c.size} (${activeCoaIndex+1}/${activeCoaImages.length})`;
+ const nav=document.querySelector('#hlxCoaNav');
+ if(nav)nav.innerHTML=activeCoaImages.length>1?`<button type="button" onclick="showCoaImage(${activeCoaIndex-1})">← Previous</button> <span>${activeCoaIndex+1} / ${activeCoaImages.length}</span> <button type="button" onclick="showCoaImage(${activeCoaIndex+1})">Next →</button>`:'';
+}
 function openCoa(id){
-  const p=products.find(x=>x.id===id); if(!p)return;
-  const box=document.querySelector('#coaLightbox'), img=document.querySelector('#coaLightboxImage'), title=document.querySelector('#coaLightboxTitle');
-  if(!box||!img||!title)return;
-  img.src=p.coaImage; img.alt=`${p.name} Certificate of Analysis`; title.textContent=`${p.name} — Certificate of Analysis`;
-  box.classList.add('open'); box.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+ const p=products.find(x=>x.id===id);if(!p)return;
+ const box=document.querySelector('#coaLightbox');if(!box)return;
+ activeCoaImages=productCoas(p);activeCoaProduct=p.name;activeCoaIndex=0;
+ let nav=document.querySelector('#hlxCoaNav');
+ if(!nav){nav=document.createElement('div');nav.id='hlxCoaNav';nav.style.cssText='text-align:center;padding:12px;display:flex;justify-content:center;align-items:center;gap:16px;';nav.querySelectorAll('button').forEach(b=>b.style.cursor='pointer');document.querySelector('#coaLightboxImage')?.insertAdjacentElement('afterend',nav)}
+ showCoaImage(0);
+ box.classList.add('open');box.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
 }
 function closeCoa(){
   const box=document.querySelector('#coaLightbox'); if(!box)return;
