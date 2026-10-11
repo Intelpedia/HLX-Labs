@@ -418,9 +418,9 @@ const products = [
     coaImage: "assets/coa-placeholder.svg"
   },
 
-   // PRODUCT 33
+   // PRODUCT 34
   {
-    id: 33,
+    id: 34,
     name: 'IGF-1 LR3',
     tier: "High",
     desc: "IGF-1 LR3 is a modified growth factor peptide studied for its role in cellular growth, protein synthesis, tissue development, and metabolic signaling.",
