@@ -149,7 +149,8 @@ const products = [
     price: 50.00,
     size: "15mg",
     productImage: "assets/BPC-157.jpg",
-    coaImage: "assets/COA-26082901.jpg"
+    coaImage: "assets/COA-26082901.jpg",
+    coaImage: "assets/COA-26072501.jpg"
   },
 
   // PRODUCT 12
