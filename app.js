@@ -19,8 +19,10 @@ const products = [
     tier: "Extreme",
     desc: "HLR-3 is an investigational peptide studied in laboratory research involving GLP-1, GIP, and glucagon receptor signaling and associated metabolic pathways..",
     options: [
+      { label: "10mg", price: 50.00 },
       { label: "12mg", price: 60.00 },
-      { label: "20mg", price: 90.00 }
+      { label: "20mg", price: 90.00 },
+      { label: "30mg", price: 120.00 }
     ],
     productImage: "assets/RETATRUTIDE.JPG",
     coaImage: "assets/coa-placeholder.svg"
@@ -33,7 +35,7 @@ const products = [
     tier: "Extreme",
     desc: "HLT-2 is a peptide studied in laboratory research involving GIP and GLP-1 receptor activity and associated metabolic signaling pathways.",
     options: [
-      { label: "10mg", price: 40.00 },
+      { label: "10mg", price: 40.00 },  
       { label: "30mg", price: 60.00 }
     ],
     productImage: "assets/TIRZEPATIDE.JPG",
