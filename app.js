@@ -149,8 +149,7 @@ const products = [
     price: 50.00,
     size: "15mg",
     productImage: "assets/BPC-157.jpg",
-    coaImage: "assets/COA-26082901.jpg",
-    coaImage: "assets/COA-26072501.jpg"
+    coaImage: "assets/COA-26082901.jpg"
   },
 
   // PRODUCT 12
@@ -432,6 +431,20 @@ const products = [
     price: 85.00,
     size: "1mg",
     productImage: "assets/IGF-1 LR3.jpg",
+    coaImage: "assets/coa-placeholder.svg"
+  },
+
+  // PRODUCT 35
+  {
+    id: 35,
+    name: 'CJC-1295-IPA',
+    tier: "High",
+    desc: "CJC-1295-IPA is a research peptide combination featuring CJC-1295, a GHRH analog and, Ipamorelin, a growth hormone secretagogue.",
+   options: [
+      { label: "5/5mg", price: 70.00 },
+      { label: "10/10mg", price: 100.00 }
+    ],
+    productImage: "assets/CJC-1295-IPA.jpg",
     coaImage: "assets/coa-placeholder.svg"
   },
 ];
