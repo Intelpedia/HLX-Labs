@@ -413,8 +413,8 @@ const products = [
     tier: "High",
     desc: "SS-31 is a mitochondria-targeted peptide studied for its effects on cellular energy production, mitochondrial function, and oxidative stress.",
    options: [
-      { label: "10mg", price: 50.00 },
-      { label: "30mg", price: 80.00 }
+      { label: "10mg", price: 60.00 },
+      { label: "30mg", price: 120.00 }
     ],
     productImage: "assets/SS-31.jpg",
     coaImage: "assets/coa-placeholder.svg"
