@@ -402,7 +402,7 @@ const products = [
     size: "50/10/10/10mg",
     productImage: "assets/KLOW.jpg",
     coaImage: "assets/coa-placeholder.svg"
-  }
+  },
 
   // PRODUCT 33
   {
