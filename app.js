@@ -98,7 +98,7 @@ const products = [
     name: 'CJC-1295',
     tier: "High",
     desc: "CJC-1295 is a synthetic GHRH analog studied in laboratory research involving growth hormone-releasing hormone receptor activity and related peptide signaling pathways.",
-    price: 40.00,
+    price: 70.00,
     size: "10mg",
     productImage: "assets/CJC-1295.jpg",
     coaImage: "assets/COA-26091501.jpg"
