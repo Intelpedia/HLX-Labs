@@ -185,7 +185,7 @@ const products = [
     price: 40.00,
     size: "10mg",
     productImage: "assets/KPV.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-26100101.jpg"
   },
 
   // PRODUCT 15
