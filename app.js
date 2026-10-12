@@ -261,7 +261,7 @@ const products = [
       { label: "1000mg", price: 90.00 }
     ],
     productImage: "assets/NAD+.png",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-260906.jpg"
   },
 
   // PRODUCT 21
@@ -285,7 +285,7 @@ const products = [
     price: 40.00,
     size: "10mg",
     productImage: "assets/PT-141.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-26070802.jpg"
   },
 
   // PRODUCT 23
