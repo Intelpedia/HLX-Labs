@@ -309,7 +309,7 @@ const products = [
     price: 50.00,
     size: "10mg",
     productImage: "assets/MELANOTAN.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-261704.jpg"
   },
 
   // PRODUCT 25
@@ -321,7 +321,7 @@ const products = [
     price: 50.00,
     size: "10mg",
     productImage: "assets/MELANOTAN.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-26092502.jpg"
   },
 
   // PRODUCT 26
