@@ -433,7 +433,7 @@ const products = [
     price: 85.00,
     size: "1mg",
     productImage: "assets/IGF-1 LR3.jpg",
-    coaImage: "assets/COA-262104."jpg
+    coaImage: "assets/COA-262104.jpg"
   },
 ];
 const getCart=()=>JSON.parse(localStorage.getItem('hlxCart')||'[]'); const saveCart=c=>{localStorage.setItem('hlxCart',JSON.stringify(c)); updateCount()};
