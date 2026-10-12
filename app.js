@@ -147,7 +147,7 @@ const products = [
     tier: "Extreme",
     desc: "BPC-157 is an experimental peptide investigated in preclinical research involving cellular signaling, tissue-response mechanisms, and biological repair pathways.",
     price: 50.00,
-    size: "15mg",
+    size: "10mg",
     productImage: "assets/BPC-157.jpg",
     coaImage: "assets/COA-26082901.jpg"
   },
