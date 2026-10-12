@@ -173,7 +173,7 @@ const products = [
     price: 40.00,
     size: "50mg",
     productImage: "assets/GHK-Cu.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-26090401.jpg"
   },
 
   // PRODUCT 14
