@@ -247,7 +247,7 @@ const products = [
     price: 40.00,
     size: "10mg",
     productImage: "assets/EPITHALON.png",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-26092601.jpg"
   },
 
   // PRODUCT 20
