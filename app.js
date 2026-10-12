@@ -113,7 +113,7 @@ const products = [
     price: 40.00,
     size: "10mg",
     productImage: "assets/SERMORELIN.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-26082502.jpg"
   },
 
   // PRODUCT 09
@@ -197,7 +197,7 @@ const products = [
     price: 50.00,
     size: "10mg",
     productImage: "assets/SEMAX.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-26082902.jpg"
   },
 
   // PRODUCT 16
@@ -209,7 +209,7 @@ const products = [
     price: 50.00,
     size: "10mg",
     productImage: "assets/SELANK.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-26082802.jpg"
   },
 
   // PRODUCT 17
