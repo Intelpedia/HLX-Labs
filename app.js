@@ -345,7 +345,7 @@ const products = [
     price: 60.00,
     size: "10mg",
     productImage: "assets/VIP.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-261004.jpg"
   },
 
   // PRODUCT 28
@@ -381,7 +381,7 @@ const products = [
     price: 75.00,
     size: "10/10mg",
     productImage: "assets/Wolverine.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-26091601.jpg"
   },
 
  // PRODUCT 31
