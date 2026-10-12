@@ -89,7 +89,7 @@ const products = [
     price: 40.00,
     size: "10mg",
     productImage: "assets/IPAMORELIN.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-26093004.jpg"
   },
 
   // PRODUCT 07
