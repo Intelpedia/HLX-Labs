@@ -297,7 +297,7 @@ const products = [
     price: 50.00,
     size: "5mg",
     productImage: "assets/KISSPEPTIN.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-26072302.jpg"
   },
 
   // PRODUCT 24
