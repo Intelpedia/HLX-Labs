@@ -273,7 +273,7 @@ const products = [
     price: 60.00,
     size: "10mg",
     productImage: "assets/THYMOSIN ALPHA-1.png",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-26310705.jpg"
   },
 
   // PRODUCT 22
