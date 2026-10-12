@@ -137,7 +137,7 @@ const products = [
     price: 50.00,
     size: "10mg",
     productImage: "assets/GHRP-6.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImage: "assets/COA-261504.jpg"
   },
 
   // PRODUCT 11
