@@ -25,7 +25,12 @@ const products = [
       { label: "30mg", price: 120.00 }
     ],
     productImage: "assets/RETATRUTIDE.JPG",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImages: [
+      { size: "10mg", image: "assets/coa-placeholder.svg" } // Replace with HLR-3-10mg-COA.jpg,
+      { size: "12mg", image: "assets/coa-placeholder.svg" } // Replace with HLR-3-12mg-COA.jpg,
+      { size: "20mg", image: "assets/coa-placeholder.svg" } // Replace with HLR-3-20mg-COA.jpg,
+      { size: "30mg", image: "assets/coa-placeholder.svg" } // Replace with HLR-3-30mg-COA.jpg
+    ]
   },
 
   // PRODUCT 02
@@ -41,7 +46,12 @@ const products = [
       { label: "60mg", price: 100.00 }
     ],
     productImage: "assets/TIRZEPATIDE.JPG",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImages: [
+      { size: "10mg", image: "assets/coa-placeholder.svg" } // Replace with HLT-2-10mg-COA.jpg,
+      { size: "30mg", image: "assets/coa-placeholder.svg" } // Replace with HLT-2-30mg-COA.jpg,
+      { size: "40mg", image: "assets/coa-placeholder.svg" } // Replace with HLT-2-40mg-COA.jpg,
+      { size: "60mg", image: "assets/coa-placeholder.svg" } // Replace with HLT-2-60mg-COA.jpg
+    ]
   },
 
   // PRODUCT 03
@@ -80,7 +90,11 @@ const products = [
       { label: "30mg", price: 120.00 }
     ],
     productImage: "assets/TIRZEPATIDE.JPG",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImages: [
+      { size: "10mg", image: "assets/coa-placeholder.svg" } // Replace with TESAMORELIN-10mg-COA.jpg,
+      { size: "20mg", image: "assets/coa-placeholder.svg" } // Replace with TESAMORELIN-20mg-COA.jpg,
+      { size: "30mg", image: "assets/coa-placeholder.svg" } // Replace with TESAMORELIN-30mg-COA.jpg
+    ]
   },
 
   // PRODUCT 06
@@ -238,7 +252,10 @@ const products = [
       { label: "40mg", price: 120.00 }
     ],
     productImage: "assets/Motsreal.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImages: [
+      { size: "10mg", image: "assets/coa-placeholder.svg" } // Replace with MOTS-C-10mg-COA.jpg,
+      { size: "40mg", image: "assets/coa-placeholder.svg" } // Replace with MOTS-C-40mg-COA.jpg
+    ]
   },
 
   // PRODUCT 19
@@ -398,7 +415,10 @@ const products = [
       { label: "10/10mg", price: 100.00 }
     ],
     productImage: "assets/CJC-1295-IPA.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImages: [
+      { size: "5/5mg", image: "assets/coa-placeholder.svg" } // Replace with CJC-1295-IPA-5-5mg-COA.jpg,
+      { size: "10/10mg", image: "assets/coa-placeholder.svg" } // Replace with CJC-1295-IPA-10-10mg-COA.jpg
+    ]
   },
 
   // PRODUCT 32
@@ -424,7 +444,10 @@ const products = [
       { label: "30mg", price: 120.00 }
     ],
     productImage: "assets/SS-31.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImages: [
+      { size: "10mg", image: "assets/coa-placeholder.svg" } // Replace with SS-31-10mg-COA.jpg,
+      { size: "30mg", image: "assets/coa-placeholder.svg" } // Replace with SS-31-30mg-COA.jpg
+    ]
   },
 
    // PRODUCT 34
