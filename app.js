@@ -50,7 +50,7 @@ const products = [
     name: 'HLS-1',
     tier: "Extreme",
     desc: "HLS-1 is a GLP-1 receptor agonist studied in research involving GLP-1 receptor signaling and associated metabolic and cellular pathways.",
-    price: 40.00,
+    price: 50.00,
     size: "10mg",
     productImage: "assets/HLS-1.jpeg",
     coaImage: "assets/COA-26072401.jpg"
@@ -74,9 +74,12 @@ const products = [
     name: 'Tesamorelin',
     tier: "High",
     desc: "Tesamorelin is a growth hormone-releasing hormone (GHRH) analog studied in research involving GHRH receptor activity and downstream endocrine signaling pathways.",
-    price: 70.00,
-    size: "12mg",
-    productImage: "assets/Tesareal.jpg",
+    options: [
+      { label: "10mg", price: 70.00 },  
+      { label: "20mg", price: 90.00 },
+      { label: "30mg", price: 120.00 }
+    ],
+    productImage: "assets/TIRZEPATIDE.JPG",
     coaImage: "assets/coa-placeholder.svg"
   },
 
