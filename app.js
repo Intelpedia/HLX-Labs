@@ -89,7 +89,7 @@ const products = [
     name: 'Ipamorelin',
     tier: "High",
     desc: "Ipamorelin is a synthetic peptide studied for its interaction with the growth hormone secretagogue receptor and associated cellular and endocrine signaling pathways.",
-    price: 40.00,
+    price: 50.00,
     size: "10mg",
     productImage: "assets/IPAMORELIN.jpg",
     coaImage: "assets/COA-26093004.jpg"
@@ -113,7 +113,7 @@ const products = [
     name: 'Sermorelin',
     tier: "High",
     desc: "Sermorelin is a GHRH-related peptide studied for its interaction with GHRH receptors and associated endocrine signaling mechanisms.",
-    price: 40.00,
+    price: 80.00,
     size: "10mg",
     productImage: "assets/SERMORELIN.jpg",
     coaImage: "assets/COA-26082502.jpg"
@@ -125,7 +125,7 @@ const products = [
     name: 'GHRP-2',
     tier: "High",
     desc: "GHRP-2 is a synthetic growth hormone-releasing peptide studied in research involving growth hormone secretagogue receptors and associated signaling pathways.",
-    price: 50.00,
+    price: 60.00,
     size: "10mg",
     productImage: "assets/GHRP-2.jpg",
     coaImage: "assets/COA-261604.jpg"
@@ -149,7 +149,7 @@ const products = [
     name: 'BPC-157',
     tier: "Extreme",
     desc: "BPC-157 is an experimental peptide investigated in preclinical research involving cellular signaling, tissue-response mechanisms, and biological repair pathways.",
-    price: 50.00,
+    price: 60.00,
     size: "10mg",
     productImage: "assets/BPC-157.jpg",
     coaImage: "assets/COA-26082901.jpg"
@@ -173,7 +173,7 @@ const products = [
     name: 'GHK-Cu',
     tier: "Low",
     desc: "GHK-Cu is a naturally occurring copper-binding peptide studied in research involving cellular signaling, extracellular matrix activity, and copper-dependent biological processes.",
-    price: 40.00,
+    price: 50.00,
     size: "50mg",
     productImage: "assets/GHK-Cu.jpg",
     coaImage: "assets/COA-26090401.jpg"
@@ -185,7 +185,7 @@ const products = [
     name: 'KPV',
     tier: "Low",
     desc: "KPV is a short peptide fragment derived from alpha-melanocyte-stimulating hormone (alpha-MSH) and studied in laboratory models involving inflammatory signaling and cellular-response pathways.",
-    price: 40.00,
+    price: 50.00,
     size: "10mg",
     productImage: "assets/KPV.jpg",
     coaImage: "assets/COA-26100101.jpg"
@@ -221,7 +221,7 @@ const products = [
     name: 'SNAP-8',
     tier: "Low",
     desc: "Acetyl Octapeptide-3, commonly known as SNAP-8, is a synthetic octapeptide studied in cosmetic and laboratory research involving peptide signaling and mechanisms associated with facial expression lines.",
-    price: 40.00,
+    price: 50.00,
     size: "10mg",
     productImage: "assets/SNAP-8.jpg",
     coaImage: "assets/coa-placeholder.svg"
@@ -234,8 +234,8 @@ const products = [
     tier: "Low",
     desc: "MOTS-C is a mitochondrial-derived peptide investigated in laboratory research involving mitochondrial signaling, cellular energy regulation, and metabolic pathways.",
     options: [
-      { label: "10mg", price: 50.00 },
-      { label: "40mg", price: 80.00 }
+      { label: "10mg", price: 70.00 },
+      { label: "40mg", price: 120.00 }
     ],
     productImage: "assets/Motsreal.jpg",
     coaImage: "assets/coa-placeholder.svg"
@@ -247,7 +247,7 @@ const products = [
     name: 'Epithalon',
     tier: "Low",
     desc: "Epithalon is a synthetic tetrapeptide studied experimentally in research involving cellular aging, circadian biology, and telomere-associated mechanisms.",
-    price: 40.00,
+    price: 50.00,
     size: "10mg",
     productImage: "assets/EPITHALON.png",
     coaImage: "assets/COA-26092601.jpg"
@@ -260,7 +260,7 @@ const products = [
     tier: "Low",
     desc: "Nicotinamide adenine dinucleotide (NAD+) is a naturally occurring coenzyme extensively studied for its role in cellular energy metabolism, redox reactions, and NAD-dependent signaling pathways.",
     options: [
-      { label: "500mg", price: 50.00 },
+      { label: "500mg", price: 70.00 },
       { label: "1000mg", price: 90.00 }
     ],
     productImage: "assets/NAD+.png",
@@ -285,7 +285,7 @@ const products = [
     name: 'PT-141',
     tier: "High",
     desc: "PT-141, also known as Bremelanotide, is a melanocortin receptor agonist studied in research involving melanocortin receptor signaling and associated neurological pathways.",
-    price: 40.00,
+    price: 50.00,
     size: "10mg",
     productImage: "assets/PT-141.jpg",
     coaImage: "assets/COA-26070802.jpg"
@@ -309,7 +309,7 @@ const products = [
     name: 'Melanotan I',
     tier: "Extreme",
     desc: "Melanotan I is a synthetic analog of alpha-melanocyte-stimulating hormone studied in research involving melanocortin receptors and pigmentation-related signaling pathways.",
-    price: 50.00,
+    price: 55.00,
     size: "10mg",
     productImage: "assets/MELANOTAN.jpg",
     coaImage: "assets/COA-261704.jpg"
@@ -321,7 +321,7 @@ const products = [
     name: 'Melanotan II',
     tier: "Extreme",
     desc: "Melanotan II is a synthetic melanocortin peptide investigated in laboratory research involving melanocortin receptor activity and associated cellular signaling pathways.",
-    price: 50.00,
+    price: 55.00,
     size: "10mg",
     productImage: "assets/MELANOTAN.jpg",
     coaImage: "assets/COA-26092502.jpg"
