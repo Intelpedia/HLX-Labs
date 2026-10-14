@@ -89,7 +89,7 @@ const products = [
       { label: "20mg", price: 90.00 },
       { label: "30mg", price: 120.00 }
     ],
-    productImage: "assets/Tesareal.JPG",
+    productImage: "assets/Tesareal.jpg",
     coaImages: [
       { size: "10mg", image: "assets/COA-Tesa10mg.jpg" },
       { size: "20mg", image: "assets/COA-Tesa20mg.jpg" },
