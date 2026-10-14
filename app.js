@@ -26,10 +26,10 @@ const products = [
     ],
     productImage: "assets/RETATRUTIDE.JPG",
     coaImages: [
-      { size: "10mg", image: "assets/coa-placeholder.svg" }, // Replace with HLR-3-10mg-COA.jpg
-      { size: "12mg", image: "assets/coa-placeholder.svg" }, // Replace with HLR-3-12mg-COA.jpg
-      { size: "20mg", image: "assets/coa-placeholder.svg" }, // Replace with HLR-3-20mg-COA.jpg
-      { size: "30mg", image: "assets/coa-placeholder.svg" } // Replace with HLR-3-30mg-COA.jpg
+      { size: "10mg", image: "assets/COA-Reta10mg.jpg" }, // Replace with HLR-3-10mg-COA.jpg
+      { size: "12mg", image: "assets/COA-Reta12mg.jpg" }, // Replace with HLR-3-12mg-COA.jpg
+      { size: "20mg", image: "assets/COA-Reta20mg.jpg" }, // Replace with HLR-3-20mg-COA.jpg
+      { size: "30mg", image: "assets/COA-Reta30mg.jpg" } // Replace with HLR-3-30mg-COA.jpg
     ]
   },
 
