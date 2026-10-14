@@ -563,9 +563,14 @@ function authNext(){const next=new URLSearchParams(location.search).get('next');
 async function enforceAccountGateway(){
  const page=(location.pathname.split('/').pop()||'index.html').toLowerCase();
  const publicPages=new Set(['','index.html','account.html','create-account.html','terms.html','privacy.html']);
- if(publicPages.has(page)||!hlxSupabase)return;
- const {data:{user},error}=await hlxSupabase.auth.getUser();
- if(error||!user){const next=encodeURIComponent(page+location.search);location.replace('account.html?next='+next)}
+ if(publicPages.has(page))return;
+ const next='account.html?next='+encodeURIComponent(page+location.search);
+ if(!hlxSupabase){location.replace(next);return}
+ try{
+  const {data:{user},error}=await hlxSupabase.auth.getUser();
+  if(error||!user){location.replace(next);return}
+  document.documentElement.style.visibility='visible';
+ }catch(e){location.replace(next)}
 }
 async function createHLXAccount(e){
  e.preventDefault();authMessage('');
@@ -610,10 +615,23 @@ async function renderAccountState(){
  if(user){if(loggedOut)loggedOut.hidden=true;if(loggedIn)loggedIn.hidden=false;if(title)title.textContent='My Account';const meta=user.user_metadata||{};const email=document.querySelector('#accountEmail'),name=document.querySelector('#accountName'),type=document.querySelector('#accountResearcherType'),elig=document.querySelector('#accountEligibility');if(email)email.textContent=user.email||'—';if(name)name.textContent=meta.name||'—';if(type)type.textContent=meta.researcher_type||'—';if(elig)elig.textContent=(meta.age_confirmed&&meta.research_use_confirmed&&meta.terms_accepted)?'Verified':'Review required';localStorage.setItem('hlxCustomerEmail',user.email||'');renderAccountOrders(user)}
  else{if(loggedOut)loggedOut.hidden=false;if(loggedIn)loggedIn.hidden=true;if(title)title.textContent='Sign in'}
 }
-function syncProtectedLinksWithAuth(user){ /* Prelaunch: all storefront links remain public. */ }
+function syncProtectedLinksWithAuth(user){
+ const protectedPages=new Set(['shop.html','coa.html','contact.html','cart.html','product.html','faq.html','shipping.html','order-confirmation.html']);
+ document.querySelectorAll('a[href]').forEach(a=>{
+  try{
+   const original=a.dataset.hlxOriginalHref||a.getAttribute('href');
+   const u=new URL(original,location.href);
+   if(u.origin!==location.origin)return;
+   const page=(u.pathname.split('/').pop()||'index.html').toLowerCase();
+   if(!protectedPages.has(page))return;
+   if(user){if(a.dataset.hlxOriginalHref)a.setAttribute('href',a.dataset.hlxOriginalHref)}
+   else{a.dataset.hlxOriginalHref=original;a.setAttribute('href','account.html?next='+encodeURIComponent(page+u.search))}
+  }catch(e){}
+ });
+}
 function initHLXAuth(){const create=document.querySelector('#createAccountForm');if(create)create.addEventListener('submit',createHLXAccount);const login=document.querySelector('#loginForm');if(login)login.addEventListener('submit',loginHLXAccount);document.querySelector('#forgotPasswordLink')?.addEventListener('click',requestPasswordReset);document.querySelector('#passwordResetForm')?.addEventListener('submit',updateHLXPassword);const logout=document.querySelector('#logoutBtn');if(logout)logout.addEventListener('click',signOutHLX);if(new URLSearchParams(location.search).get('recovery')==='1')document.querySelector('#passwordResetPanel')?.removeAttribute('hidden');if(hlxSupabase){hlxSupabase.auth.getUser().then(({data})=>syncProtectedLinksWithAuth(data?.user||null));hlxSupabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY')document.querySelector('#passwordResetPanel')?.removeAttribute('hidden');syncProtectedLinksWithAuth(session?.user||null)})}renderAccountState()}
 function demoAuth(e,type){return type==='create'?createHLXAccount(e):loginHLXAccount(e)}
-// Prelaunch: account gate disabled; retain enforceAccountGateway for launch.
+enforceAccountGateway();
 document.addEventListener('DOMContentLoaded',()=>{updateCount();initShopControls();renderProducts();renderCart();initHLXAuth()});
 
 function initAccessGate(){
