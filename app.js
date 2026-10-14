@@ -47,10 +47,10 @@ const products = [
     ],
     productImage: "assets/TIRZEPATIDE.JPG",
     coaImages: [
-      { size: "10mg", image: "assets/coa-placeholder.svg" }, // Replace with HLT-2-10mg-COA.jpg
-      { size: "30mg", image: "assets/coa-placeholder.svg" }, // Replace with HLT-2-30mg-COA.jpg
-      { size: "40mg", image: "assets/coa-placeholder.svg" }, // Replace with HLT-2-40mg-COA.jpg
-      { size: "60mg", image: "assets/coa-placeholder.svg" } // Replace with HLT-2-60mg-COA.jpg
+      { size: "10mg", image: "assets/COA-Tirz10mg.jpg" },
+      { size: "30mg", image: "assets/COA-Tirz30mg.jpg" },
+      { size: "40mg", image: "assets/COA-Tirz40mg.jpg" },
+      { size: "60mg", image: "assets/COA-Tirz60mg.jpg" }
     ]
   },
 
@@ -89,11 +89,11 @@ const products = [
       { label: "20mg", price: 90.00 },
       { label: "30mg", price: 120.00 }
     ],
-    productImage: "assets/TIRZEPATIDE.JPG",
+    productImage: "assets/Tesareal.JPG",
     coaImages: [
-      { size: "10mg", image: "assets/coa-placeholder.svg" }, // Replace with TESAMORELIN-10mg-COA.jpg
-      { size: "20mg", image: "assets/coa-placeholder.svg" }, // Replace with TESAMORELIN-20mg-COA.jpg
-      { size: "30mg", image: "assets/coa-placeholder.svg" } // Replace with TESAMORELIN-30mg-COA.jpg
+      { size: "10mg", image: "assets/COA-Tesa10mg.jpg" },
+      { size: "20mg", image: "assets/COA-Tesa20mg.jpg" },
+      { size: "30mg", image: "assets/COA-Tesa30mg.jpg" }
     ]
   },
 
@@ -253,8 +253,8 @@ const products = [
     ],
     productImage: "assets/Motsreal.jpg",
     coaImages: [
-      { size: "10mg", image: "assets/coa-placeholder.svg" }, // Replace with MOTS-C-10mg-COA.jpg
-      { size: "40mg", image: "assets/coa-placeholder.svg" } // Replace with MOTS-C-40mg-COA.jpg
+      { size: "10mg", image: "assets/COA-MOTS10mg.jpg" },
+      { size: "40mg", image: "assets/COA-MOTS 40mg.jpg" }
     ]
   },
 
@@ -416,8 +416,8 @@ const products = [
     ],
     productImage: "assets/CJC-1295-IPA.jpg",
     coaImages: [
-      { size: "5/5mg", image: "assets/coa-placeholder.svg" }, // Replace with CJC-1295-IPA-5-5mg-COA.jpg
-      { size: "10/10mg", image: "assets/coa-placeholder.svg" } // Replace with CJC-1295-IPA-10-10mg-COA.jpg
+      { size: "5/5mg", image: "assets/COA-CJC 5-5mg.jpg" },
+      { size: "10/10mg", image: "assets/COA-CJC 10-10mg.jpg" }
     ]
   },
 
@@ -445,8 +445,8 @@ const products = [
     ],
     productImage: "assets/SS-31.jpg",
     coaImages: [
-      { size: "10mg", image: "assets/coa-placeholder.svg" }, // Replace with SS-31-10mg-COA.jpg
-      { size: "30mg", image: "assets/coa-placeholder.svg" } // Replace with SS-31-30mg-COA.jpg
+      { size: "10mg", image: "assets/COA-SS-31-10mg.jpg" },
+      { size: "30mg", image: "assets/COA-SS-31-30mg.jpg" }
     ]
   },
 
