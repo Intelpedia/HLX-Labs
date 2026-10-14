@@ -501,8 +501,7 @@ function addToCartQty(id,qty=1,optionKey=null){
 
 let currentShopState={tier:'All',search:'',sort:'featured'};
 function getStartingPrice(p){const prices=productOptions(p).map(o=>Number(o.price));return Math.min(...prices)}
-function storefrontPrice(p){const prices=productOptions(p).map(o=>Number(o.price));const min=Math.min(...prices),max=Math.max(...prices);const format=n=>'
-function renderProducts(tier=currentShopState.tier){
+function storefrontPrice(p){const prices=productOptions(p).map(o=>Number(o.price));const min=Math.min(...prices),max=Math.max(...prices);const format=n=>'(tier=currentShopState.tier){
   const el=document.querySelector('#products');if(!el)return;
   currentShopState.tier=tier||'All';
   let list=[...products];
@@ -858,8 +857,7 @@ window.HLXOrders={
   getLastOrder:()=>JSON.parse(localStorage.getItem('hlxLastOrder')||'null'),
   getOrders:()=>JSON.parse(localStorage.getItem('hlxOrders')||'[]')
 };
-document.addEventListener('DOMContentLoaded',renderOrderConfirmation);
-+n.toFixed(2);return min===max?format(min):format(min)+'–'+format(max)}
+document.addEventListener('DOMContentLoaded',renderOrderConfirmation);+n.toFixed(2);return min===max?format(min):format(min)+'–'+format(max)}
 function renderProducts(tier=currentShopState.tier){
   const el=document.querySelector('#products');if(!el)return;
   currentShopState.tier=tier||'All';
@@ -875,7 +873,7 @@ function renderProducts(tier=currentShopState.tier){
 
   const count=document.querySelector('#shopCount');if(count)count.textContent=list.length;
   el.innerHTML=list.map(p=>{
-    const options=productOptions(p),startingPrice=options[0]?.price??p.price;
+    const options=productOptions(p);
     return `<article class="product-card shop-product-card">
       <a class="product-link" href="product.html?id=${p.id}">
         <div class="shop-product-image"><img src="${p.productImage}" alt="${p.name} vial" loading="lazy"></div>
@@ -883,7 +881,7 @@ function renderProducts(tier=currentShopState.tier){
           <h3>${p.name}</h3>
           <div class="product-size-line">${options[0]?.label||p.size||'Single Vial'}</div>
           <span class="shop-tier-badge ${p.tier.toLowerCase()}">${p.tier.toUpperCase()} TIER</span>
-          <div class="price">$${Number(startingPrice).toFixed(2)}</div>
+          <div class="price">${storefrontPrice(p)}</div>
         </div>
       </a>
       <button class="btn primary shop-add-btn" onclick="addToCart(${p.id})"><span aria-hidden="true">🛒</span> ADD TO CART</button>
@@ -963,13 +961,10 @@ async function renderAccountState(){
  if(user){if(loggedOut)loggedOut.hidden=true;if(loggedIn)loggedIn.hidden=false;if(title)title.textContent='My Account';const meta=user.user_metadata||{};const email=document.querySelector('#accountEmail'),name=document.querySelector('#accountName'),type=document.querySelector('#accountResearcherType'),elig=document.querySelector('#accountEligibility');if(email)email.textContent=user.email||'—';if(name)name.textContent=meta.name||'—';if(type)type.textContent=meta.researcher_type||'—';if(elig)elig.textContent=(meta.age_confirmed&&meta.research_use_confirmed&&meta.terms_accepted)?'Verified':'Review required';localStorage.setItem('hlxCustomerEmail',user.email||'');renderAccountOrders(user)}
  else{if(loggedOut)loggedOut.hidden=false;if(loggedIn)loggedIn.hidden=true;if(title)title.textContent='Sign in'}
 }
-function syncProtectedLinksWithAuth(user){
- const protectedPages=new Set(['shop.html','coa.html','contact.html','cart.html','product.html','faq.html','shipping.html','order-confirmation.html']);
- document.querySelectorAll('a[href]').forEach(a=>{try{const u=new URL(a.getAttribute('href'),location.href);const page=(u.pathname.split('/').pop()||'index.html').toLowerCase();if(!protectedPages.has(page))return;if(user){if(a.dataset.hlxOriginalHref)a.setAttribute('href',a.dataset.hlxOriginalHref)}else{if(!a.dataset.hlxOriginalHref)a.dataset.hlxOriginalHref=a.getAttribute('href');a.setAttribute('href','account.html?next='+encodeURIComponent(page+u.search))}}catch(e){}})
-}
+function syncProtectedLinksWithAuth(user){ /* Prelaunch: all storefront links remain public. */ }
 function initHLXAuth(){const create=document.querySelector('#createAccountForm');if(create)create.addEventListener('submit',createHLXAccount);const login=document.querySelector('#loginForm');if(login)login.addEventListener('submit',loginHLXAccount);document.querySelector('#forgotPasswordLink')?.addEventListener('click',requestPasswordReset);document.querySelector('#passwordResetForm')?.addEventListener('submit',updateHLXPassword);const logout=document.querySelector('#logoutBtn');if(logout)logout.addEventListener('click',signOutHLX);if(new URLSearchParams(location.search).get('recovery')==='1')document.querySelector('#passwordResetPanel')?.removeAttribute('hidden');if(hlxSupabase){hlxSupabase.auth.getUser().then(({data})=>syncProtectedLinksWithAuth(data?.user||null));hlxSupabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY')document.querySelector('#passwordResetPanel')?.removeAttribute('hidden');syncProtectedLinksWithAuth(session?.user||null)})}renderAccountState()}
 function demoAuth(e,type){return type==='create'?createHLXAccount(e):loginHLXAccount(e)}
-enforceAccountGateway();
+// Prelaunch: account gate disabled; retain enforceAccountGateway for launch.
 document.addEventListener('DOMContentLoaded',()=>{updateCount();initShopControls();renderProducts();renderCart();initHLXAuth()});
 
 function initAccessGate(){
