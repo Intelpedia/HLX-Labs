@@ -176,7 +176,7 @@ const products = [
     tier: "Extreme",
     desc: "TB-500 is a synthetic peptide related to thymosin beta-4 and studied in laboratory research involving cellular migration, actin regulation, and tissue-response pathways.",
     price: 70.00,
-    size: "15mg",
+    size: "10mg",
     productImage: "assets/TB-500.jpg",
     coaImage: "assets/COA-26091702.jpg"
   },
