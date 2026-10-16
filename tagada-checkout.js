@@ -2,7 +2,7 @@
 // The public store ID and each exact TagadaPay variant ID must be configured
 // before checkout can be activated. Never place private API keys in this file.
 const HLX_TAGADA_CONFIG = Object.freeze({
-  storeId: '', // TagadaPay public store ID: store_...
+  storeId: 'store_9d5ce5d8aba8', // TagadaPay public store ID
   environment: 'production',
   // Keys: "<HLX product id>::<HLX option key>" -> TagadaPay variant ID.
   variants: Object.freeze({})
