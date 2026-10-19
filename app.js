@@ -372,6 +372,7 @@ const products = [
   {
     id: 28,
     name: 'Dihexa',
+    outOfStock: true,
     tier: "Low",
     desc: "Dihexa is an experimental research compound investigated primarily in preclinical neurological research involving synaptic signaling and neuroplasticity-related pathways.",
     price: 60.00,
@@ -479,7 +480,7 @@ function addToCart(id){
 
 function addToCartQty(id,qty=1,optionKey=null){
   qty=Math.max(1,Number(qty)||1);
-  const p=products.find(x=>x.id===id); if(!p)return;
+  const p=products.find(x=>x.id===id); if(!p || p.outOfStock)return;
   const options=productOptions(p);
   const option=options.find(o=>String(o.key)===String(optionKey))||options[0];
   const cartKey=makeCartKey(p.id,option.key);
@@ -530,10 +531,10 @@ function renderProducts(tier=currentShopState.tier){
           <h3>${p.name}</h3>
           <div class="product-size-line">${options[0]?.label||p.size||'Single Vial'}</div>
           <span class="shop-tier-badge ${p.tier.toLowerCase()}">${p.tier.toUpperCase()} TIER</span>
-          <div class="price">${storefrontPrice(p)}</div>
+          <div class="price">${storefrontPrice(p)}</div>${p.outOfStock?'<div class="stock-status" style="color:#e34444;font-weight:800;margin-top:8px">OUT OF STOCK</div>':''}
         </div>
       </a>
-      <button class="btn primary shop-add-btn" onclick="addToCart(${p.id})"><span aria-hidden="true">🛒</span> ADD TO CART</button>
+      <button class="btn primary shop-add-btn" ${p.outOfStock?'disabled aria-disabled="true" style="opacity:.55;cursor:not-allowed"':`onclick="addToCart(${p.id})"`}>${p.outOfStock?'OUT OF STOCK':'<span aria-hidden="true">🛒</span> ADD TO CART'}</button>
     </article>`
   }).join('');
   if(!list.length)el.innerHTML='<div class="shop-empty">No products match your search or filters.</div>';
@@ -547,6 +548,8 @@ function initShopControls(){
 }
 function renderCart(){
   let el=document.querySelector('#cartItems');if(!el)return;let c=getCart();
+  const unavailable=c.filter(x=>products.find(p=>p.id===Number(x.id))?.outOfStock);
+  if(unavailable.length){c=c.filter(x=>!products.find(p=>p.id===Number(x.id))?.outOfStock);saveCart(c);}
   if(!c.length){el.innerHTML='<p>Your cart is currently empty.</p>';document.querySelector('#total').textContent='$0.00';return}
   el.innerHTML=c.map((x,i)=>`<div class="cart-row"><div><strong>${x.name}</strong>${x.selectedOption?`<small class="cart-option">${x.selectedOption}</small>`:''}</div><div class="qty"><button onclick="changeQtyByIndex(${i},-1)">−</button><span>${x.qty}</span><button onclick="changeQtyByIndex(${i},1)">+</button></div><span>$${(x.price*x.qty).toFixed(2)}</span><button class="btn" onclick="removeItemByIndex(${i})">Remove</button></div>`).join('');
   document.querySelector('#total').textContent='$'+c.reduce((s,x)=>s+x.price*x.qty,0).toFixed(2)
@@ -701,13 +704,13 @@ function renderProductDetail(){
       <section class="product-purchase">
         <div class="purchase-topline"><span class="research-label">RESEARCH PRODUCT</span><span class="tier-badge">${p.tier.toUpperCase()} TIER</span></div>
         <h1>${p.name}</h1>
-        <div class="product-price" id="productPrice">$${initialOption.price.toFixed(2)}</div>
+        <div class="product-price" id="productPrice">${initialOption.price.toFixed(2)}</div>${p.outOfStock?'<p class="stock-status" style="color:#e34444;font-weight:800">OUT OF STOCK</p>':''}
         <p class="product-lede">${p.desc}</p>
         <div class="purchase-rule"></div>
         <div class="purchase-controls">
           <label class="product-select-wrap"><span>SELECT SIZE</span><select id="productSize">${options.map(o=>`<option value="${o.key}">${o.label} - $${o.price.toFixed(2)}</option>`).join('')}</select></label>
           <div class="quantity-wrap"><span>QUANTITY</span><div class="quantity-picker"><button type="button" id="qtyMinus">−</button><strong id="qtyValue">1</strong><button type="button" id="qtyPlus">+</button></div></div>
-          <button class="add-cart-large" id="addProductBtn" type="button">🛒 <span>ADD TO CART</span></button>
+          <button class="add-cart-large" id="addProductBtn" type="button" ${p.outOfStock?'disabled aria-disabled="true" style="opacity:.55;cursor:not-allowed"':''}>${p.outOfStock?'OUT OF STOCK':'🛒 <span>ADD TO CART</span>'}</button>
         </div>
         <div id="productAddedNote" class="product-added-note" aria-live="polite"></div>
         <div class="product-assurances">
