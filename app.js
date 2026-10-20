@@ -315,7 +315,7 @@ const products = [
     tier: "High",
     desc: "Kisspeptin is a naturally occurring peptide studied for its interaction with the KISS 1 receptor and its role in reproductive and neuroendocrine signaling research.",
     price: 50.00,
-    size: "5mg",
+    size: "10mg",
     productImage: "assets/KISSPEPTIN.jpg",
     coaImage: "assets/COA-26072302.jpg"
   },
