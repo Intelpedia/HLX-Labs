@@ -52,6 +52,7 @@ const HLX_TAGADA_CONFIG = Object.freeze({
     '33::0': 'variant_dc8f1c8886c3',
     '33::1': 'variant_a080f40c07cd',
     '34::default': 'variant_4420cf525d12',
+  }),
 });
 
 async function beginHLXTagadaCheckout() {
