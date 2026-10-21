@@ -636,7 +636,7 @@ function initHLXAuth(){const create=document.querySelector('#createAccountForm')
  const user=data?.user||null;
  syncProtectedLinksWithAuth(user);
  const hero=document.querySelector('#homeHeroImage'),link=document.querySelector('.hero-replica .hero-hotspot.shop');
- if(hero&&link){hero.src=user?'assets/home-hero.jpeg':'assets/PHOTO-2026-09-28-17-06-51.jpg';link.href=user?'shop.html':'create-account.html';link.setAttribute('aria-label',user?'Shop HLX Labs products':'Create account for access')}
+ if(hero&&link){hero.src=user?'assets/home-hero.jpeg':'assets/a_dramatic_high_contrast_promotional_poster_adver.png';link.href=user?'shop.html':'create-account.html';link.setAttribute('aria-label',user?'Shop HLX Labs products':'Create account for access')}
 }).catch(()=>syncProtectedLinksWithAuth(null));hlxSupabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY')document.querySelector('#passwordResetPanel')?.removeAttribute('hidden');syncProtectedLinksWithAuth(session?.user||null)})}renderAccountState()}
 function demoAuth(e,type){return type==='create'?createHLXAccount(e):loginHLXAccount(e)}
 enforceAccountGateway();
