@@ -35,7 +35,6 @@ const HLX_TAGADA_CONFIG = Object.freeze({
     '18::1': 'variant_a94fff4c41fc',
     '19::default': 'variant_1788d1460baf',
     '20::0': 'variant_fc2796687285',
-    '20::1': 'variant_d2c6be9400ed',
     '21::default': 'variant_4a769a3b4cac',
     '22::default': 'variant_1680d8b8b18c',
     '23::default': 'variant_4c8ecb597dc0',
