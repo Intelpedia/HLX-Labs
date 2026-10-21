@@ -449,7 +449,7 @@ const products = [
     coaImage: "assets/COA-262104.jpg"
   },
 ];
-const getCart=()=>JSON.parse(localStorage.getItem('hlxCart')||'[]').filter(x=>Number(x.id)!==28 && !(Number(x.id)===20 && (String(x.optionKey)==='1' || String(x.selectedOption||'').includes('1000mg')))); const saveCart=c=>{localStorage.setItem('hlxCart',JSON.stringify(c)); updateCount()};
+const getCart=()=>JSON.parse(localStorage.getItem('hlxCart')||'[]').filter(x=>Number(x.id)!==28 && !(Number(x.id)===20 && (String(x.optionKey)==='1' || String(x.selectedOption||'').includes('1000mg'))); const saveCart=c=>{localStorage.setItem('hlxCart',JSON.stringify(c)); updateCount()};
 function updateCount(){document.querySelectorAll('.cart-count').forEach(e=>e.textContent=getCart().reduce((s,x)=>s+x.qty,0))}
 function productOptions(p){
   if(Array.isArray(p.options)&&p.options.length){
