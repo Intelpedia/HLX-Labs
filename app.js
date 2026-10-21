@@ -277,8 +277,7 @@ const products = [
     tier: "Low",
     desc: "Nicotinamide adenine dinucleotide (NAD+) is a naturally occurring coenzyme extensively studied for its role in cellular energy metabolism, redox reactions, and NAD-dependent signaling pathways.",
     options: [
-      { label: "500mg", price: 70.00 },
-      { label: "1000mg", price: 90.00 }
+      { label: "500mg", price: 70.00 }
     ],
     productImage: "assets/NAD+.png",
     coaImage: "assets/COA-260906.jpg"
@@ -463,7 +462,7 @@ const products = [
     coaImage: "assets/COA-262104.jpg"
   },
 ];
-const getCart=()=>JSON.parse(localStorage.getItem('hlxCart')||'[]'); const saveCart=c=>{localStorage.setItem('hlxCart',JSON.stringify(c)); updateCount()};
+const getCart=()=>JSON.parse(localStorage.getItem('hlxCart')||'[]').filter(x=>!(Number(x.id)===20 && (String(x.optionKey)==='1' || String(x.selectedOption||'').includes('1000mg')))); const saveCart=c=>{localStorage.setItem('hlxCart',JSON.stringify(c)); updateCount()};
 function updateCount(){document.querySelectorAll('.cart-count').forEach(e=>e.textContent=getCart().reduce((s,x)=>s+x.qty,0))}
 function productOptions(p){
   if(Array.isArray(p.options)&&p.options.length){
