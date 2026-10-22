@@ -90,19 +90,104 @@ Deno.serve(async (req) => {
       return json({ error: "Order missing from API response" }, 503);
     }
 
-    // Store verified-signature event and provider order for later reconciliation.
-    // Do not assume the provider's payment-status field without its API schema.
-    // Do not dispatch to TideCo here: supplier SKU mapping is not yet validated.
+    // Existing excluded test events were returned above and are never dispatched.
+    // Only the Tagada API's independently retrieved paid state authorizes fulfillment.
+    if (order.status !== "paid" || !order.paidAt || order.draft === true ||
+        order.refundedAt || order.cancelledAt) {
+      return json({ received: true, ignored: true, reason: "not_eligible_for_fulfillment" });
+    }
+    const orderNumber = String(order.orderNumber || order.id || orderId);
+    if (!orderNumber || String(order.id) !== orderId) {
+      return json({ error: "Provider order ID mismatch" }, 409);
+    }
+    const payments = Array.isArray(order.payments) ? order.payments : [];
+    const paidPayment = payments.find((p: Record<string, unknown>) =>
+      p && typeof p.id === "string" && (p.status === "paid" || p.status === "succeeded" || p.status === "success"));
+    if (!paidPayment) return json({ error: "Verified paid transaction unavailable" }, 409);
+
+    const address = order.shippingAddress;
+    const customerInfo = order.customer;
+    if (!address || typeof address !== "object" || !customerInfo ||
+        typeof customerInfo !== "object") {
+      return json({ error: "Customer or shipping address unavailable" }, 409);
+    }
+    const customerName = [address.firstName || customerInfo.firstName, address.lastName || customerInfo.lastName]
+      .filter((v: unknown) => typeof v === "string" && v.trim()).join(" ").trim();
+    const shipName = [address.firstName, address.lastName]
+      .filter((v: unknown) => typeof v === "string" && v.trim()).join(" ").trim() || customerName;
+    const shipTo = {
+      name: shipName,
+      line1: address.address1,
+      line2: address.address2 || "",
+      city: address.city,
+      state: address.state,
+      zip: String(address.postal || ""),
+      country: address.country,
+    };
+    const customer = { name: customerName, email: customerInfo.email || address.email || "", phone: "" };
+    if (!customer.name || !shipTo.name || !shipTo.line1 || !shipTo.zip ||
+        !shipTo.city || !shipTo.state || !shipTo.country) {
+      return json({ error: "Incomplete shipping information" }, 409);
+    }
+    if (!Array.isArray(order.items) || !order.items.length)
+      return json({ error: "No order items" }, 409);
+    const items = order.items.map((item: Record<string, unknown>) => ({
+      name: typeof item.productName === "string" ? item.productName : String(item.sku || ""),
+      sku: item.sku,
+      qty: Number(item.quantity),
+      price: Number(item.amount) / 100,
+    }));
+    if (items.some((item: { sku: unknown; qty: number; price: number }) =>
+      typeof item.sku !== "string" || !item.sku.trim() ||
+      !Number.isInteger(item.qty) || item.qty < 1 ||
+      !Number.isFinite(item.price) || item.price < 0))
+      return json({ error: "Invalid supplier SKU, quantity, or price" }, 409);
+
+    // Persist the event first, so retries can be reconciled without repeating shipments.
     const { error: saveError } = await db.from("tagada_paid_events").upsert({
-      event_id: event.id,
-      order_id: orderId,
+      event_id: event.id, order_id: orderId,
       event_created_at: event.createdAt || null,
-      order_payload: order,
-      processing_status: "pending_mapping",
+      order_payload: order, processing_status: "verified_paid",
     }, { onConflict: "event_id", ignoreDuplicates: true });
     if (saveError) throw saveError;
 
-    return json({ received: true, saved: true, fulfillment: "disabled_pending_mapping" });
+    const orderRecord = {
+      order_number: orderNumber,
+      payment_status: "paid",
+      transaction_id: String(paidPayment.id),
+      currency: String(order.currency || "USD"),
+      total: Number(order.paidAmount || 0) / 100,
+      items,
+      payment_provider: "tagada",
+      provider_payload: { customer, shipTo, paidAt: order.paidAt, providerOrderId: orderId },
+    };
+    const { data: prior, error: priorError } = await db.from("orders")
+      .select("id,transaction_id,payment_status").eq("order_number", orderNumber).maybeSingle();
+    if (priorError) throw priorError;
+    if (prior && prior.transaction_id && prior.transaction_id !== orderRecord.transaction_id)
+      return json({ error: "Conflicting transaction for order" }, 409);
+    const write = prior
+      ? await db.from("orders").update(orderRecord).eq("id", prior.id)
+      : await db.from("orders").insert(orderRecord);
+    if (write.error) throw write.error;
+
+    const dispatchSecret = Deno.env.get("HLX_FULFILLMENT_SECRET");
+    if (!dispatchSecret) return json({ error: "Fulfillment secret missing; order saved" }, 503);
+    const dispatch = await fetch(supabaseUrl + "/functions/v1/tideco-dispatch", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-hlx-fulfillment-secret": dispatchSecret },
+      body: JSON.stringify({ orderNumber }),
+      signal: AbortSignal.timeout(20000),
+    });
+    const status = dispatch.status;
+    await db.from("tagada_paid_events").update({
+      processing_status: status === 200 ? "dispatched" : "dispatch_review",
+    }).eq("event_id", event.id);
+    if (!dispatch.ok) {
+      console.error("Dispatch not completed; check tideco_dispatch_claims", status);
+      return json({ received: true, orderSaved: true, dispatchStatus: status }, 503);
+    }
+    return json({ received: true, orderSaved: true, dispatched: true });
   } catch (error) {
     console.error("Webhook processing error:", error);
     return json({ error: "Webhook processing failed" }, 500);
