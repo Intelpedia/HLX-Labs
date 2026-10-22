@@ -38,15 +38,16 @@ Deno.serve(async (request) => {
     payload = parsed as Record<string, unknown>;
   } catch { return json({ error: "Invalid JSON object" }, 400); }
 
-  // Only accept explicit identifiers; never infer which customer's order to update.
-  const orderNumber = pick(payload, "order_number", "orderNumber", "merchant_order_id", "merchantOrderId");
-  const trackingNumber = pick(payload, "tracking_number", "trackingNumber");
-  const carrier = pick(payload, "carrier", "shipping_carrier", "shippingCarrier");
-  const status = pick(payload, "shipment_status", "shipmentStatus", "status").toLowerCase().replace(/[ -]/g, "_");
-  const trackingUrl = pick(payload, "tracking_url", "trackingUrl");
-  if (!orderNumber || !trackingNumber || !validStatus.has(status)) {
-    return json({ error: "Required: order_number, tracking_number, valid shipment_status" }, 400);
-  }
+  // TideCo documented callback: {event:"order.shipped",orderId,netsuiteOrder,shippedAt,tracking:{number,carrier,url}}.
+  if (payload.event !== "order.shipped") return json({ ok: true, ignored: true });
+  const orderNumber = pick(payload, "orderId");
+  const tracking = payload.tracking && typeof payload.tracking === "object" && !Array.isArray(payload.tracking)
+    ? payload.tracking as Record<string, unknown> : {};
+  const trackingNumber = pick(tracking, "number");
+  const carrier = pick(tracking, "carrier");
+  const trackingUrl = pick(tracking, "url");
+  const status = "shipped";
+  if (!orderNumber || !trackingNumber) return json({ error: "Required: orderId and tracking.number" }, 400);
   if (trackingUrl && (!/^https:\/\//i.test(trackingUrl) || trackingUrl.length > 2048))
     return json({ error: "Invalid tracking URL" }, 400);
   if ([orderNumber, trackingNumber, carrier].some(x => x.length > 200))
