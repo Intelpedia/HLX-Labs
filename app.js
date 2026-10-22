@@ -584,9 +584,16 @@ async function loginHLXAccount(e){
  e.preventDefault();authMessage('');
  if(!hlxSupabase){authMessage('Authentication service failed to load. Please refresh and try again.',true);return}
  const f=e.currentTarget,email=f.email.value.trim().toLowerCase(),password=f.password.value;
- const {data,error}=await hlxSupabase.auth.signInWithPassword({email,password});
- if(error){authMessage(error.message||'Sign-in failed. Check your email and password.',true);return}
- localStorage.setItem('hlxCustomerEmail',data.user?.email||email);authMessage('Signed in successfully. Redirecting…');setTimeout(()=>location.href=authNext(),400)
+ try{
+  const {data,error}=await hlxSupabase.auth.signInWithPassword({email,password});
+  if(error){authMessage(error.message||'Sign-in failed. Check your email and password.',true);return}
+  localStorage.setItem('hlxCustomerEmail',data.user?.email||email);
+  authMessage('Signed in successfully. Redirecting…');
+  location.assign(authNext());
+ }catch(err){
+  console.error('HLX sign-in error:',err);
+  authMessage('Unable to reach the sign-in service. Please try again or check your connection.',true);
+ }
 }
 async function requestPasswordReset(e){e?.preventDefault();if(!hlxSupabase)return;const input=document.querySelector('#loginEmail');const email=input?.value.trim().toLowerCase();if(!email){authMessage('Enter your email address above, then select Forgot password.',true);input?.focus();return}const redirectTo=new URL('account.html?recovery=1',location.href).href;const {error}=await hlxSupabase.auth.resetPasswordForEmail(email,{redirectTo});if(error){authMessage(error.message||'Password reset email could not be sent.',true);return}authMessage('Password reset email sent. Check your inbox and follow the secure link.')}
 async function updateHLXPassword(e){e.preventDefault();if(!hlxSupabase)return;const f=e.currentTarget,p=f.password.value,c=f.passwordConfirm.value;if(p.length<8){authMessage('Password must be at least 8 characters.',true);return}if(p!==c){authMessage('Passwords do not match.',true);return}const {error}=await hlxSupabase.auth.updateUser({password:p});if(error){authMessage(error.message||'Password could not be updated.',true);return}authMessage('Password updated successfully.');document.querySelector('#passwordResetPanel')?.setAttribute('hidden','')}
@@ -610,7 +617,7 @@ async function renderAccountState(){
  else{if(loggedOut)loggedOut.hidden=false;if(loggedIn)loggedIn.hidden=true;if(title)title.textContent='Sign in'}
 }
 function syncProtectedLinksWithAuth(user){
- const protectedPages=new Set(['shop.html','coa.html','contact.html','cart.html','product.html','faq.html','shipping.html','order-confirmation.html']);
+ const protectedPages=new Set(['shop.html','coa.html','contact.html','product.html','faq.html','shipping.html','order-confirmation.html']);
  document.querySelectorAll('a[href]').forEach(a=>{
   try{
    const original=a.dataset.hlxOriginalHref||a.getAttribute('href');
