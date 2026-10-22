@@ -6,3 +6,9 @@ verify_jwt = false
 
 [functions.tagada-to-tideco]
 verify_jwt = false
+
+[functions.tagada-webhook]
+verify_jwt = false
+
+[functions.tideco-dispatch]
+verify_jwt = false
