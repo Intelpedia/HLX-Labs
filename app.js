@@ -449,7 +449,12 @@ const products = [
     coaImage: "assets/COA-262104.jpg"
   },
 ];
-const getCart=()=>JSON.parse(localStorage.getItem('hlxCart')||'[]').filter(x=>Number(x.id)!==28 && !(Number(x.id)===20 && (String(x.optionKey)==='1' || String(x.selectedOption||'').includes('1000mg'))); const saveCart=c=>{localStorage.setItem('hlxCart',JSON.stringify(c)); updateCount()};
+function getCart(){try{const data=JSON.parse(localStorage.getItem('hlxCart')||'[]');return (Array.isArray(data)?data:[]).filter(x=>Number(x.id)!==28 && !(Number(x.id)===20 && (String(x.optionKey)==='1'||String(x.selectedOption||'').includes('1000mg')))}catch(e){console.error('HLX cart read failed',e);return []}}
+function saveCart(c){try{localStorage.setItem('hlxCart',JSON.stringify(c))}catch(e){console.error('HLX cart save failed',e);alert('Your browser could not save your cart. Please enable site storage.');return}updateCount()}
+// Carry the cart through cart-link navigation if www and apex use different origins.
+function importCartFromLink(){if(!location.hash.startsWith('#hlx-cart='))return;try{const incoming=JSON.parse(decodeURIComponent(location.hash.slice(10)));if(Array.isArray(incoming)){const existing=getCart();for(const line of incoming){if(!line||!Number.isFinite(Number(line.id))||!Number.isFinite(Number(line.qty))||Number(line.qty)<1)continue;const key=String(line.cartKey||makeCartKey(line.id,line.optionKey));const found=existing.find(x=>String(x.cartKey||makeCartKey(x.id,x.optionKey))===key);if(found)found.qty=Math.max(Number(found.qty)||0,Number(line.qty));else existing.push(line)}saveCart(existing)}}catch(e){console.error('Cart transfer failed',e)}history.replaceState(null,'',location.pathname+location.search)}
+function initCartLinkTransfer(){document.addEventListener('click',e=>{const link=e.target.closest?.('a[href]');if(!link)return;const target=new URL(link.href,location.href);if(target.pathname.split('/').pop()!=='cart.html'||target.origin!==location.origin)return;const items=getCart();if(items.length){target.hash='hlx-cart='+encodeURIComponent(JSON.stringify(items));link.href=target.href}},true)}
+importCartFromLink();initCartLinkTransfer();
 function updateCount(){document.querySelectorAll('.cart-count').forEach(e=>e.textContent=getCart().reduce((s,x)=>s+x.qty,0))}
 function productOptions(p){
   if(Array.isArray(p.options)&&p.options.length){
