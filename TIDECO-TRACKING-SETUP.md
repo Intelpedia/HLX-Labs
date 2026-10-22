@@ -16,7 +16,7 @@ supabase functions deploy tideco-tracking --no-verify-jwt
 ```
 
 ## 3. Set secret
-Generate a strong random secret (at least 32 random bytes) and set it in Supabase Edge Function secrets as `TIDECO_TRACKING_SECRET`. Do not put it in GitHub, website JavaScript, or chat. Supabase provides `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in the function environment; confirm they are available.
+Receive TideCo's signing secret through their secure link and set it in Supabase Edge Function secrets as `TIDECO_TRACKING_SECRET`. Do not put it in GitHub, website JavaScript, or chat. Supabase provides `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in the function environment; confirm they are available.
 
 ## 4. Send TideCo the actual endpoint
 `https://ttmwcwuzrqemsqfwkkyw.supabase.co/functions/v1/tideco-tracking`
@@ -33,10 +33,13 @@ Ask TideCo to POST JSON with `Authorization: Bearer <your shared secret>` or `x-
 ```
 Accepted statuses: pending, processing, shipped, in_transit, out_for_delivery, delivered, exception, returned, cancelled. The endpoint requires the exact order number and does not create orders.
 
-**Confirm TideCo's real webhook payload and authentication options before enabling production.** If their format differs, adapt the handler. Do not give TideCo the earlier proposed `https://hlxlabs.com/api/webhooks/tideco-tracking` URL: Porkbun static hosting does not serve it.
+**Confirm TideCo's actual tracking webhook JSON payload before enabling production.** The HMAC signature format is confirmed by TideCo's instructions, but the JSON field names are not yet verified. If their format differs, adapt the handler. Do not give TideCo the earlier proposed `https://hlxlabs.com/api/webhooks/tideco-tracking` URL: Porkbun static hosting does not serve it.
 
 ## 5. Test
 Use a real existing TEST order number in Supabase and a test tracking number. Confirm HTTP 200 and updated columns in `orders`. A 401 means secret mismatch; 400 means payload fields do not match; 404 means order number does not exist; 500 means database setup/permissions need checking. Do not test with a customer's production order.
 
 ## 6. Customer order history
 The account page reads the `orders` table through Supabase RLS. The frontend can display shipment status and tracking once deployed. Never use the service-role key in frontend JavaScript.
+
+## Order intake (separate from tracking)
+TideCo requires `POST https://api.tidecotech.com/intake/order/hlx-labs-8dab17` with `Authorization: Bearer <API key>` and JSON matching `https://api.tidecotech.com/intake/schema`. Only send `paid: true` after trusted server-side payment confirmation. Never expose the API key in browser code. TideCo reports TEST MODE until agreed go-live. **Order intake is NOT implemented by this tracking callback.** Retrieve the official schema and SKU list before building intake. Do not invent fields or SKUs.
