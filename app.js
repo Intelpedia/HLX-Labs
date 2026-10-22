@@ -551,7 +551,7 @@ function authMessage(message,isError=false){const el=document.querySelector('#au
 function authNext(){const next=new URLSearchParams(location.search).get('next');return next&&/^[a-z0-9._?=&%-]+$/i.test(next)&&!next.includes('..')?next:'shop.html'}
 async function enforceAccountGateway(){
  const page=(location.pathname.split('/').pop()||'index.html').toLowerCase();
- const publicPages=new Set(['','index.html','account.html','create-account.html','terms.html','privacy.html']);
+ const publicPages=new Set(['','index.html','account.html','create-account.html','terms.html','privacy.html','cart.html']);
  if(publicPages.has(page))return;
  const next='account.html?next='+encodeURIComponent(page+location.search);
  if(!hlxSupabase){location.replace(next);return}
