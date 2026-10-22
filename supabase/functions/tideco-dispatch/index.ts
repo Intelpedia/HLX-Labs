@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
     body: JSON.stringify({
       orderId: order.order_number, paid: true, paidAt: provider.paidAt || null,
       customer, shipTo, lines, note: provider.note || ""
-    })
+    }),
     signal: AbortSignal.timeout(15000),
     });
   } catch (err) {
