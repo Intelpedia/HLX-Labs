@@ -1,2 +1,5 @@
 [functions.tideco-tracking]
 verify_jwt = false
+
+[functions.tideco-order-intake]
+verify_jwt = false
