@@ -561,10 +561,15 @@ async function enforceAccountGateway(){
  const next='account.html?next='+encodeURIComponent(page+location.search);
  if(!hlxSupabase){location.replace(next);return}
  try{
-  const {data:{user},error}=await hlxSupabase.auth.getUser();
-  if(error||!user){location.replace(next);return}
+  const result=await Promise.race([
+   hlxSupabase.auth.getUser(),
+   new Promise((_,reject)=>setTimeout(()=>reject(new Error('Account verification timed out')),8000))
+  ]);
+  const user=result?.data?.user;
+  if(result?.error||!user){location.replace(next);return}
   document.documentElement.style.visibility='visible';
- }catch(e){location.replace(next)}
+  document.querySelector('#hlx-auth-pending')?.remove();
+ }catch(e){console.error('HLX account gateway:',e);location.replace(next)}
 }
 async function createHLXAccount(e){
  e.preventDefault();authMessage('');
