@@ -42,15 +42,45 @@ Deno.serve(async (req) => {
   // Safe by default: deployment alone cannot dispatch live orders.
   if (Deno.env.get("TIDECO_DISPATCH_ENABLED") !== "true")
     return Response.json({ ok: false, status: "disabled", message: "TideCo dispatch is disabled until test-mode approval" }, { status: 409 });
-  const response = await fetch(`https://api.tidecotech.com/intake/order/${encodeURIComponent(brandKey)}`, {
+  // Atomically claim the order before making a LIVE supplier request.
+  // Unknown/failed network outcomes remain claimed for manual reconciliation;
+  // never blindly retry because TideCo may already have accepted shipment.
+  const { data: claimed, error: claimError } = await db.rpc("claim_tideco_dispatch", {
+    p_order_number: order.order_number,
+  });
+  if (claimError) {
+    console.error("Dispatch claim failed:", claimError.message);
+    return Response.json({ error: "Dispatch safety check unavailable" }, { status: 503 });
+  }
+  if (claimed !== true)
+    return Response.json({ ok: false, status: "already_claimed", orderNumber: order.order_number }, { status: 409 });
+
+  let response: Response;
+  try {
+    response = await fetch(`https://api.tidecotech.com/intake/order/${encodeURIComponent(brandKey)}`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
       orderId: order.order_number, paid: true, paidAt: provider.paidAt || null,
       customer, shipTo, lines, note: provider.note || ""
     })
-  });
+    signal: AbortSignal.timeout(15000),
+    });
+  } catch (err) {
+    console.error("TideCo request outcome unknown:", String(err));
+    await db.from("tideco_dispatch_claims").update({
+      state: "unknown", last_error: "Transport failure; reconcile with TideCo before retry",
+      updated_at: new Date().toISOString(),
+    }).eq("order_number", order.order_number);
+    return Response.json({ error: "Supplier outcome unknown; manual reconciliation required" }, { status: 502 });
+  }
   const body = await response.text();
+  await db.from("tideco_dispatch_claims").update({
+    state: response.status === 202 ? "accepted" : "reconcile",
+    response_code: response.status,
+    last_error: response.status === 202 ? null : "Non-202 supplier response; reconcile before retry",
+    updated_at: new Date().toISOString(),
+  }).eq("order_number", order.order_number);
   // Do not return supplier response body to untrusted callers.
   if (response.status !== 202) {
     console.error("TideCo dispatch rejected:", response.status, body.slice(0, 1000));
