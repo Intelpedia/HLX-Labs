@@ -549,7 +549,7 @@ const HLX_SUPABASE_PUBLISHABLE_KEY='sb_publishable_iqgOzPVIKBA0C1hnGGVAFw_qhycsz
 const hlxSupabase=window.supabase?.createClient(HLX_SUPABASE_URL,HLX_SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 function authMessage(message,isError=false){const el=document.querySelector('#authMsg');if(!el)return;el.textContent=message;el.classList.toggle('auth-error',!!isError);el.classList.toggle('auth-success',!isError&&!!message)}
 function authNext(){const next=new URLSearchParams(location.search).get('next');return next&&/^[a-z0-9._?=&%-]+$/i.test(next)&&!next.includes('..')?next:'shop.html'}
-async function enforceAccountGateway(){
+async async function enforceAccountGateway(){
  const page=(location.pathname.split('/').pop()||'index.html').toLowerCase();
  const publicPages=new Set(['','index.html','account.html','create-account.html','terms.html','privacy.html']);
  if(publicPages.has(page))return;
