@@ -125,8 +125,8 @@ Deno.serve(async (req) => {
       country: address.country,
     };
     const customer = { name: customerName, email: customerInfo.email || address.email || "", phone: "" };
-    if (!customer.name || !shipTo.name || !shipTo.line1 || !shipTo.zip ||
-        !shipTo.city || !shipTo.state || !shipTo.country) {
+    if (!customer.name || !customer.email || !shipTo.name || !shipTo.line1 || !shipTo.zip ||
+        !shipTo.city || !shipTo.state || shipTo.country !== "US") {
       return json({ error: "Incomplete shipping information" }, 409);
     }
     if (!Array.isArray(order.items) || !order.items.length)
@@ -135,7 +135,7 @@ Deno.serve(async (req) => {
       name: typeof item.productName === "string" ? item.productName : String(item.sku || ""),
       sku: item.sku,
       qty: Number(item.quantity),
-      price: Number(item.amount) / 100,
+      price: Number(item.amount) / 100 / Number(item.quantity),
     }));
     if (items.some((item: { sku: unknown; qty: number; price: number }) =>
       typeof item.sku !== "string" || !item.sku.trim() ||
@@ -171,7 +171,7 @@ Deno.serve(async (req) => {
       : await db.from("orders").insert(orderRecord);
     if (write.error) throw write.error;
 
-    const dispatchSecret = Deno.env.get("HLX_FULFILLMENT_SECRET");
+    // Do not dispatch unless the explicitly configured supplier allowlist contains every SKU.\n    const allowed = new Set((Deno.env.get("TIDECO_ALLOWED_SKUS") || "").split(",").map(v => v.trim()).filter(Boolean));\n    if (!allowed.size || items.some((item: {sku: string}) => !allowed.has(item.sku))) {\n      await db.from("tagada_paid_events").update({processing_status:"sku_review"}).eq("event_id",event.id);\n      return json({received:true,orderSaved:true,fulfillment:"sku_review"},503);\n    }\n    const dispatchSecret = Deno.env.get("HLX_FULFILLMENT_SECRET");
     if (!dispatchSecret) return json({ error: "Fulfillment secret missing; order saved" }, 503);
     const dispatch = await fetch(supabaseUrl + "/functions/v1/tideco-dispatch", {
       method: "POST",
