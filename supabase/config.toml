@@ -1,0 +1,2 @@
+[functions.tideco-tracking]
+verify_jwt = false
