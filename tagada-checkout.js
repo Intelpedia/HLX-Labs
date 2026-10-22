@@ -65,9 +65,21 @@ async function beginHLXTagadaCheckout() {
   if (!cart.length) { show('Add an item to your cart first.'); return; }
   const items = [];
   for (const line of cart) {
-    const key = String(line.id) + '::' + String(line.optionKey ?? 'default');
+    const product = typeof products !== 'undefined' ? products.find(p => Number(p.id) === Number(line.id)) : null;
+    const options = product && typeof productOptions === 'function' ? productOptions(product) : [];
+    // Older saved carts sometimes lack optionKey, or store "default" for a sized product.
+    // Resolve the actual selected size before looking up its TagadaPay variant.
+    let selected = options.find(o => String(o.key) === String(line.optionKey));
+    if (!selected && line.selectedOption) selected = options.find(o => String(o.label).trim().toLowerCase() === String(line.selectedOption).trim().toLowerCase());
+    if (!selected && options.length === 1) selected = options[0];
+    if (!selected && options.length > 1 && !line.selectedOption && (line.optionKey == null || line.optionKey === 'default')) selected = options[0];
+    const key = String(line.id) + '::' + String(selected?.key ?? line.optionKey ?? 'default');
     const variantId = HLX_TAGADA_CONFIG.variants[key];
-    if (!variantId) { show('Checkout setup is incomplete for one or more selected sizes.'); return; }
+    if (!variantId) {
+      console.warn('Unmapped checkout selection', { productId: line.id, selectedSize: line.selectedOption, optionKey: line.optionKey, resolvedKey: key });
+      show('Checkout is unavailable for ' + (product?.name || line.name || 'a selected product') + ' (' + (line.selectedOption || selected?.label || 'selected size') + '). Please contact support.');
+      return;
+    }
     items.push({ variantId, quantity: Number(line.qty) });
   }
   if (!window.TagadaHeadless?.create) {
