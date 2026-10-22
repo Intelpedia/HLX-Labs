@@ -1,5 +1,5 @@
 // TideCo -> HLX Labs shipment tracking callback.
-// Deploy with JWT verification disabled; TideCo authenticates using the shared secret.
+// Deploy with JWT verification disabled; TideCo authenticates using X-Tideco-Signature HMAC-SHA256.
 // Never expose the secret in browser code.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -18,19 +18,21 @@ Deno.serve(async (request) => {
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!expected || !url || !serviceKey) return json({ error: "Webhook not configured" }, 503);
 
-  // Constant-time digest comparison avoids direct string timing leaks.
-  const supplied = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "") ||
-    request.headers.get("x-webhook-secret") || "";
-  const digest = async (value: string) => new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)));
-  const [a, b] = await Promise.all([digest(expected), digest(supplied)]);
+  // Verify HMAC of the EXACT raw request body before parsing JSON.
+  const raw = await request.text();
+  if (raw.length > 65536) return json({ error: "Payload too large" }, 413);
+  const signature = request.headers.get("x-tideco-signature") || "";
+  const match = /^sha256=([a-f0-9]{64})$/i.exec(signature.trim());
+  if (!match) return json({ error: "Unauthorized" }, 401);
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(expected), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const mac = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(raw)));
+  const supplied = Uint8Array.from(match[1].match(/.{2}/g)!, h => parseInt(h, 16));
   let difference = 0;
-  for (let i = 0; i < a.length; i++) difference |= a[i] ^ b[i];
-  if (!supplied || difference !== 0) return json({ error: "Unauthorized" }, 401);
+  for (let i = 0; i < mac.length; i++) difference |= mac[i] ^ supplied[i];
+  if (difference !== 0) return json({ error: "Unauthorized" }, 401);
 
   let payload: Record<string, unknown>;
   try {
-    const raw = await request.text();
-    if (raw.length > 65536) return json({ error: "Payload too large" }, 413);
     const parsed: unknown = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw Error("Expected object");
     payload = parsed as Record<string, unknown>;
