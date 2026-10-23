@@ -171,6 +171,32 @@ Deno.serve(async (req) => {
       return json({ error: "Invalid supplier SKU, quantity, or price" }, 409);
     }
 
+    // Resolve the authenticated HLX account from the verified provider's customer email.
+    // Fail closed on missing or ambiguous matches; never attach an order to an arbitrary user.
+    const email = customer.email.trim().toLowerCase();
+    let matchedUserId: string | null = null;
+    let matches = 0;
+    for (let page = 1; page <= 10; page++) {
+      const { data: usersPage, error: usersError } = await db.auth.admin.listUsers({ page, perPage: 1000 });
+      if (usersError) throw usersError;
+      const users = usersPage?.users || [];
+      for (const user of users) {
+        if (user.email?.trim().toLowerCase() === email && user.email_confirmed_at) {
+          matchedUserId = user.id;
+          matches++;
+        }
+      }
+      if (users.length < 1000) break;
+      if (page === 10) {
+        console.error("Paid order requires account reconciliation: account_lookup_limit");
+        return json({ error: "Account lookup requires review" }, 503);
+      }
+    }
+    if (matches !== 1 || !matchedUserId) {
+      console.error("Paid order requires account reconciliation:", matches === 0 ? "no_verified_account" : "ambiguous_account");
+      return json({ error: "Customer account requires review" }, 409);
+    }
+
     // Persist the event first, so retries can be reconciled without repeating shipments.
     const { error: saveError } = await db.from("tagada_paid_events").upsert({
       event_id: event.id, order_id: orderId,
@@ -180,6 +206,7 @@ Deno.serve(async (req) => {
     if (saveError) throw saveError;
 
     const orderRecord = {
+      user_id: matchedUserId,
       order_number: orderNumber,
       payment_status: "paid",
       transaction_id: String(paidPayment.id),
@@ -190,8 +217,12 @@ Deno.serve(async (req) => {
       provider_payload: { customer, shipTo, paidAt: order.paidAt, providerOrderId: orderId },
     };
     const { data: prior, error: priorError } = await db.from("orders")
-      .select("id,transaction_id,payment_status").eq("order_number", orderNumber).maybeSingle();
+      .select("id,user_id,transaction_id,payment_status").eq("order_number", orderNumber).maybeSingle();
     if (priorError) throw priorError;
+    if (prior && prior.user_id !== matchedUserId) {
+      console.error("Paid order rejected: existing_account_mismatch");
+      return json({ error: "Existing order account mismatch" }, 409);
+    }
     if (prior && prior.transaction_id && prior.transaction_id !== orderRecord.transaction_id) {
       console.error("Paid order rejected: conflicting_transaction");
       return json({ error: "Conflicting transaction for order" }, 409);
