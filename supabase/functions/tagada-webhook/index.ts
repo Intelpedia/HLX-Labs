@@ -106,6 +106,27 @@ Deno.serve(async (req) => {
       p && typeof p.id === "string" && (p.status === "paid" || p.status === "succeeded" || p.status === "success"));
     if (!paidPayment) { console.error("Paid order rejected: successful_payment_not_found"); return json({ error: "Verified paid transaction unavailable" }, 409); }
 
+    // Temporary diagnostic: report field presence only, never customer values.
+    // Remove after confirming Tagada's shipping schema.
+    const shippingDiagnostic = order.shippingAddress;
+    const customerDiagnostic = order.customer;
+    const safeKeys = (value: unknown) =>
+      value && typeof value === "object" && !Array.isArray(value)
+        ? Object.keys(value as Record<string, unknown>)
+        : [];
+    const shippingFields = shippingDiagnostic && typeof shippingDiagnostic === "object" && !Array.isArray(shippingDiagnostic)
+      ? shippingDiagnostic as Record<string, unknown>
+      : {};
+    console.log("Shipping diagnostics", {
+      hasShippingAddress: !!shippingDiagnostic,
+      shippingFieldNames: safeKeys(shippingDiagnostic),
+      customerFieldNames: safeKeys(customerDiagnostic),
+      countryFormat: typeof shippingFields.country,
+      hasPostal: !!shippingFields.postal,
+      hasZip: !!shippingFields.zip,
+      hasAddress1: !!shippingFields.address1,
+    });
+
     const address = order.shippingAddress;
     const customerInfo = order.customer;
     if (!address || typeof address !== "object" || !customerInfo ||
