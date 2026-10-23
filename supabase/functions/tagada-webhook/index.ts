@@ -98,17 +98,19 @@ Deno.serve(async (req) => {
     }
     const orderNumber = String(order.orderNumber || order.id || orderId);
     if (!orderNumber || String(order.id) !== orderId) {
+      console.error("Paid order rejected: provider_order_id_mismatch");
       return json({ error: "Provider order ID mismatch" }, 409);
     }
     const payments = Array.isArray(order.payments) ? order.payments : [];
     const paidPayment = payments.find((p: Record<string, unknown>) =>
       p && typeof p.id === "string" && (p.status === "paid" || p.status === "succeeded" || p.status === "success"));
-    if (!paidPayment) return json({ error: "Verified paid transaction unavailable" }, 409);
+    if (!paidPayment) { console.error("Paid order rejected: successful_payment_not_found"); return json({ error: "Verified paid transaction unavailable" }, 409); }
 
     const address = order.shippingAddress;
     const customerInfo = order.customer;
     if (!address || typeof address !== "object" || !customerInfo ||
         typeof customerInfo !== "object") {
+      console.error("Paid order rejected: missing_customer_or_shipping_object");
       return json({ error: "Customer or shipping address unavailable" }, 409);
     }
     const customerName = [address.firstName || customerInfo.firstName, address.lastName || customerInfo.lastName]
@@ -127,9 +129,11 @@ Deno.serve(async (req) => {
     const customer = { name: customerName, email: customerInfo.email || address.email || "", phone: "" };
     if (!customer.name || !customer.email || !shipTo.name || !shipTo.line1 || !shipTo.zip ||
         !shipTo.city || !shipTo.state || shipTo.country !== "US") {
+      console.error("Paid order rejected: incomplete_or_non_us_shipping");
       return json({ error: "Incomplete shipping information" }, 409);
     }
     if (!Array.isArray(order.items) || !order.items.length)
+      console.error("Paid order rejected: no_items");
       return json({ error: "No order items" }, 409);
     const items = order.items.map((item: Record<string, unknown>) => ({
       name: typeof item.productName === "string" ? item.productName : String(item.sku || ""),
@@ -141,6 +145,7 @@ Deno.serve(async (req) => {
       typeof item.sku !== "string" || !item.sku.trim() ||
       !Number.isInteger(item.qty) || item.qty < 1 ||
       !Number.isFinite(item.price) || item.price < 0))
+      console.error("Paid order rejected: invalid_item_data");
       return json({ error: "Invalid supplier SKU, quantity, or price" }, 409);
 
     // Persist the event first, so retries can be reconciled without repeating shipments.
@@ -165,6 +170,7 @@ Deno.serve(async (req) => {
       .select("id,transaction_id,payment_status").eq("order_number", orderNumber).maybeSingle();
     if (priorError) throw priorError;
     if (prior && prior.transaction_id && prior.transaction_id !== orderRecord.transaction_id)
+      console.error("Paid order rejected: conflicting_transaction");
       return json({ error: "Conflicting transaction for order" }, 409);
     const write = prior
       ? await db.from("orders").update(orderRecord).eq("id", prior.id)
