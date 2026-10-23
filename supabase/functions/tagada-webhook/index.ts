@@ -171,23 +171,59 @@ Deno.serve(async (req) => {
       : await db.from("orders").insert(orderRecord);
     if (write.error) throw write.error;
 
-    // Do not dispatch unless the explicitly configured supplier allowlist contains every SKU.\n    const allowed = new Set((Deno.env.get("TIDECO_ALLOWED_SKUS") || "").split(",").map(v => v.trim()).filter(Boolean));\n    if (!allowed.size || items.some((item: {sku: string}) => !allowed.has(item.sku))) {\n      await db.from("tagada_paid_events").update({processing_status:"sku_review"}).eq("event_id",event.id);\n      return json({received:true,orderSaved:true,fulfillment:"sku_review"},503);\n    }\n    const dispatchSecret = Deno.env.get("HLX_FULFILLMENT_SECRET");
-    if (!dispatchSecret) return json({ error: "Fulfillment secret missing; order saved" }, 503);
-    const dispatch = await fetch(supabaseUrl + "/functions/v1/tideco-dispatch", {
-      method: "POST",
-      headers: { "content-type": "application/json", "x-hlx-fulfillment-secret": dispatchSecret },
-      body: JSON.stringify({ orderNumber }),
-      signal: AbortSignal.timeout(20000),
-    });
-    const status = dispatch.status;
-    await db.from("tagada_paid_events").update({
-      processing_status: status === 200 ? "dispatched" : "dispatch_review",
-    }).eq("event_id", event.id);
-    if (!dispatch.ok) {
-      console.error("Dispatch not completed; check tideco_dispatch_claims", status);
-      return json({ received: true, orderSaved: true, dispatchStatus: status }, 503);
+    // Do not dispatch unless the explicitly configured supplier allowlist contains every SKU.
+    const allowed = new Set((Deno.env.get("TIDECO_ALLOWED_SKUS") || "").split(",").map(v => v.trim()).filter(Boolean));
+    if (!allowed.size || items.some((item: {sku: string}) => !allowed.has(item.sku))) {
+      await db.from("tagada_paid_events").update({processing_status:"sku_review"}).eq("event_id",event.id);
+      return json({received:true,orderSaved:true,fulfillment:"sku_review"},503);
     }
-    return json({ received: true, orderSaved: true, dispatched: true });
+    // Atomically reserve the supplier order before invoking the sole LIVE intake relay.
+    // An existing claim must be reconciled, never sent again automatically.
+    if (Deno.env.get("TIDECO_DISPATCH_ENABLED") !== "true") {
+      await db.from("tagada_paid_events").update({ processing_status: "fulfillment_disabled" }).eq("event_id", event.id);
+      return json({ received: true, orderSaved: true, fulfillment: "disabled" });
+    }
+    const dispatchSecret = Deno.env.get("HLX_FULFILLMENT_SECRET");
+    if (!dispatchSecret) return json({ error: "Fulfillment secret missing; order saved" }, 503);
+    const { data: claimed, error: claimError } = await db.rpc("claim_tideco_dispatch", { p_order_number: orderNumber });
+    if (claimError) throw claimError;
+    if (!claimed) {
+      await db.from("tagada_paid_events").update({ processing_status: "existing_claim_review" }).eq("event_id", event.id);
+      return json({ received: true, orderSaved: true, fulfillment: "existing_claim_review" });
+    }
+    const intakePayload = {
+      orderId: orderNumber, paid: true, paidAt: order.paidAt, customer, shipTo,
+      lines: items.map((item: { sku: string; qty: number; price: number }) => ({
+        sku: item.sku, qty: item.qty, price: item.price,
+      })),
+      note: "",
+    };
+    try {
+      const intake = await fetch(supabaseUrl + "/functions/v1/tideco-order-intake", {
+        method: "POST",
+        headers: { "content-type": "application/json", Authorization: "Bearer " + dispatchSecret },
+        body: JSON.stringify(intakePayload),
+        signal: AbortSignal.timeout(20000),
+      });
+      const accepted = intake.status === 202;
+      await db.from("tideco_dispatch_claims").update({
+        state: accepted ? "accepted" : "reconcile", response_code: intake.status,
+        last_error: accepted ? null : "TideCo intake did not return 202", updated_at: new Date().toISOString(),
+      }).eq("order_number", orderNumber);
+      await db.from("tagada_paid_events").update({
+        processing_status: accepted ? "dispatched" : "dispatch_review",
+      }).eq("event_id", event.id);
+      if (!accepted) return json({ received: true, orderSaved: true, fulfillment: "review", intakeStatus: intake.status }, 503);
+      return json({ received: true, orderSaved: true, fulfillment: "accepted" });
+    } catch (intakeError) {
+      await db.from("tideco_dispatch_claims").update({
+        state: "unknown", last_error: "Intake outcome unknown; manual reconciliation required",
+        updated_at: new Date().toISOString(),
+      }).eq("order_number", orderNumber);
+      await db.from("tagada_paid_events").update({ processing_status: "dispatch_review" }).eq("event_id", event.id);
+      console.error("TideCo intake outcome uncertain", String(intakeError));
+      return json({ received: true, orderSaved: true, fulfillment: "review" }, 503);
+    }
   } catch (error) {
     console.error("Webhook processing error:", error);
     return json({ error: "Webhook processing failed" }, 500);
