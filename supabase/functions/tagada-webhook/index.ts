@@ -132,9 +132,10 @@ Deno.serve(async (req) => {
       console.error("Paid order rejected: incomplete_or_non_us_shipping");
       return json({ error: "Incomplete shipping information" }, 409);
     }
-    if (!Array.isArray(order.items) || !order.items.length)
+    if (!Array.isArray(order.items) || !order.items.length) {
       console.error("Paid order rejected: no_items");
       return json({ error: "No order items" }, 409);
+    }
     const items = order.items.map((item: Record<string, unknown>) => ({
       name: typeof item.productName === "string" ? item.productName : String(item.sku || ""),
       sku: item.sku,
@@ -144,9 +145,10 @@ Deno.serve(async (req) => {
     if (items.some((item: { sku: unknown; qty: number; price: number }) =>
       typeof item.sku !== "string" || !item.sku.trim() ||
       !Number.isInteger(item.qty) || item.qty < 1 ||
-      !Number.isFinite(item.price) || item.price < 0))
+      !Number.isFinite(item.price) || item.price < 0)) {
       console.error("Paid order rejected: invalid_item_data");
       return json({ error: "Invalid supplier SKU, quantity, or price" }, 409);
+    }
 
     // Persist the event first, so retries can be reconciled without repeating shipments.
     const { error: saveError } = await db.from("tagada_paid_events").upsert({
@@ -169,9 +171,10 @@ Deno.serve(async (req) => {
     const { data: prior, error: priorError } = await db.from("orders")
       .select("id,transaction_id,payment_status").eq("order_number", orderNumber).maybeSingle();
     if (priorError) throw priorError;
-    if (prior && prior.transaction_id && prior.transaction_id !== orderRecord.transaction_id)
+    if (prior && prior.transaction_id && prior.transaction_id !== orderRecord.transaction_id) {
       console.error("Paid order rejected: conflicting_transaction");
       return json({ error: "Conflicting transaction for order" }, 409);
+    }
     const write = prior
       ? await db.from("orders").update(orderRecord).eq("id", prior.id)
       : await db.from("orders").insert(orderRecord);
