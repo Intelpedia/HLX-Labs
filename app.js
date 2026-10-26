@@ -622,6 +622,9 @@ async function renderAccountState(){
  else{if(loggedOut)loggedOut.hidden=false;if(loggedIn)loggedIn.hidden=true;if(title)title.textContent='Sign in'}
 }
 function syncProtectedLinksWithAuth(user){
+ const hero=document.querySelector('#homeHeroImage'),link=document.querySelector('.hero-replica .hero-hotspot.shop');
+ if(hero){const src=user?'assets/home-hero.jpeg':'assets/home-hero-signed-out-20261026.jpeg';if(hero.getAttribute('src')!==src)hero.setAttribute('src',src)}
+ if(link){link.href=user?'shop.html':'create-account.html';delete link.dataset.hlxOriginalHref;link.setAttribute('aria-label',user?'Shop HLX Labs products':'Create account for access')}
  const protectedPages=new Set(['shop.html','coa.html','contact.html','product.html','faq.html','shipping.html','order-confirmation.html']);
  document.querySelectorAll('a[href]').forEach(a=>{
   try{
@@ -638,8 +641,7 @@ function syncProtectedLinksWithAuth(user){
 function initHLXAuth(){const create=document.querySelector('#createAccountForm');if(create)create.addEventListener('submit',createHLXAccount);const login=document.querySelector('#loginForm');if(login)login.addEventListener('submit',loginHLXAccount);document.querySelector('#forgotPasswordLink')?.addEventListener('click',requestPasswordReset);document.querySelector('#passwordResetForm')?.addEventListener('submit',updateHLXPassword);const logout=document.querySelector('#logoutBtn');if(logout)logout.addEventListener('click',signOutHLX);if(new URLSearchParams(location.search).get('recovery')==='1')document.querySelector('#passwordResetPanel')?.removeAttribute('hidden');if(hlxSupabase){hlxSupabase.auth.getUser().then(({data})=>{
  const user=data?.user||null;
  syncProtectedLinksWithAuth(user);
- const hero=document.querySelector('#homeHeroImage'),link=document.querySelector('.hero-replica .hero-hotspot.shop');
- if(hero&&link){hero.src=user?'assets/home-hero.jpeg':'assets/a_dramatic_high_contrast_promotional_poster_adver.png';link.href=user?'shop.html':'create-account.html';link.setAttribute('aria-label',user?'Shop HLX Labs products':'Create account for access')}
+
 }).catch(()=>syncProtectedLinksWithAuth(null));hlxSupabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY')document.querySelector('#passwordResetPanel')?.removeAttribute('hidden');syncProtectedLinksWithAuth(session?.user||null)})}renderAccountState()}
 function demoAuth(e,type){return type==='create'?createHLXAccount(e):loginHLXAccount(e)}
 enforceAccountGateway();
