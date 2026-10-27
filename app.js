@@ -623,7 +623,7 @@ async function renderAccountState(){
 }
 function syncProtectedLinksWithAuth(user){
  const hero=document.querySelector('#homeHeroImage'),link=document.querySelector('.hero-replica .hero-hotspot.shop');
- if(hero){const src=user?'assets/home-hero.jpeg':'assets/home-hero-signed-out-20261026.jpeg';if(hero.getAttribute('src')!==src)hero.setAttribute('src',src)}
+ if(hero){const src=user?'assets/home-hero.jpeg':'assets/home-hero-signed-out-20261027.jpeg';if(hero.getAttribute('src')!==src)hero.setAttribute('src',src)}
  if(link){link.href=user?'shop.html':'create-account.html';delete link.dataset.hlxOriginalHref;link.setAttribute('aria-label',user?'Shop HLX Labs products':'Create account for access')}
  const protectedPages=new Set(['shop.html','coa.html','contact.html','product.html','faq.html','shipping.html','order-confirmation.html']);
  document.querySelectorAll('a[href]').forEach(a=>{
