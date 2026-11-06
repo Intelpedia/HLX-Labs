@@ -417,7 +417,8 @@ const products = [
     price: 100.00,
     size: "50/10/10/10mg",
     productImage: "assets/KLOW.jpg",
-    coaImage: "assets/COA-KLOW.jpg?v=20261026-1"
+    coaImage: "assets/COA-KLOW.jpg?v=20261026-1",
+    coaImage: "assets/COA-KLOW2.jpg
   },
 
   // PRODUCT 33
