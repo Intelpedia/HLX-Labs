@@ -11,6 +11,8 @@
 // ]
 // ============================================================
 
+// Add one entry per certificate to each product’s coaImages array.
+// Use { size: "10mg • Lot ABC", image: "assets/example.jpg" } to show a label.
 const products = [
   // PRODUCT 01
   {
@@ -63,7 +65,9 @@ const products = [
     price: 50.00,
     size: "10mg",
     productImage: "assets/HLS-1.jpeg",
-    coaImage: "assets/COA-26072401.jpg"
+    coaImages: [
+      "assets/COA-26072401.jpg"
+    ]
   },
 
   // PRODUCT 04
@@ -75,7 +79,9 @@ const products = [
     price: 80.00,
     size: "10mg",
     productImage: "assets/CAGRILINTIDE.jpg",
-    coaImage: "assets/COA-26092402.jpg"
+    coaImages: [
+      "assets/COA-26092402.jpg"
+    ]
   },
 
   // PRODUCT 05
@@ -106,7 +112,9 @@ const products = [
     price: 50.00,
     size: "10mg",
     productImage: "assets/IPAMORELIN.jpg",
-    coaImage: "assets/COA-26093004.jpg"
+    coaImages: [
+      "assets/COA-26093004.jpg"
+    ]
   },
 
   // PRODUCT 07
@@ -118,7 +126,9 @@ const products = [
     price: 70.00,
     size: "10mg",
     productImage: "assets/CJC-1295.jpg",
-    coaImage: "assets/COA-26091501.jpg"
+    coaImages: [
+      "assets/COA-26091501.jpg"
+    ]
   },
 
   // PRODUCT 08
@@ -130,7 +140,9 @@ const products = [
     price: 80.00,
     size: "10mg",
     productImage: "assets/SERMORELIN.jpg",
-    coaImage: "assets/COA-26082502.jpg"
+    coaImages: [
+      "assets/COA-26082502.jpg"
+    ]
   },
 
   // PRODUCT 09
@@ -142,7 +154,9 @@ const products = [
     price: 60.00,
     size: "10mg",
     productImage: "assets/GHRP-2.jpg",
-    coaImage: "assets/COA-261604.jpg"
+    coaImages: [
+      "assets/COA-261604.jpg"
+    ]
   },
 
   // PRODUCT 10
@@ -154,7 +168,9 @@ const products = [
     price: 50.00,
     size: "10mg",
     productImage: "assets/GHRP-6.jpg",
-    coaImage: "assets/COA-261504.jpg"
+    coaImages: [
+      "assets/COA-261504.jpg"
+    ]
   },
 
   // PRODUCT 11
@@ -166,7 +182,9 @@ const products = [
     price: 60.00,
     size: "10mg",
     productImage: "assets/BPC-157.jpg",
-    coaImage: "assets/COA-26082901.jpg"
+    coaImages: [
+      "assets/COA-26082901.jpg"
+    ]
   },
 
   // PRODUCT 12
@@ -178,7 +196,9 @@ const products = [
     price: 70.00,
     size: "10mg",
     productImage: "assets/TB-500.jpg",
-    coaImage: "assets/COA-26091702.jpg"
+    coaImages: [
+      "assets/COA-26091702.jpg"
+    ]
   },
 
   // PRODUCT 13
@@ -190,7 +210,9 @@ const products = [
     price: 50.00,
     size: "50mg",
     productImage: "assets/GHK-Cu.jpg",
-    coaImage: "assets/COA-26090401.jpg"
+    coaImages: [
+      "assets/COA-26090401.jpg"
+    ]
   },
 
   // PRODUCT 14
@@ -202,7 +224,9 @@ const products = [
     price: 50.00,
     size: "10mg",
     productImage: "assets/KPV.jpg",
-    coaImage: "assets/COA-26100101.jpg"
+    coaImages: [
+      "assets/COA-26100101.jpg"
+    ]
   },
 
   // PRODUCT 15
@@ -214,7 +238,9 @@ const products = [
     price: 50.00,
     size: "10mg",
     productImage: "assets/SEMAX.jpg",
-    coaImage: "assets/COA-26082902.jpg"
+    coaImages: [
+      "assets/COA-26082902.jpg"
+    ]
   },
 
   // PRODUCT 16
@@ -226,7 +252,9 @@ const products = [
     price: 50.00,
     size: "10mg",
     productImage: "assets/SELANK.jpg",
-    coaImage: "assets/COA-26082802.jpg"
+    coaImages: [
+      "assets/COA-26082802.jpg"
+    ]
   },
 
   // PRODUCT 17
@@ -238,7 +266,9 @@ const products = [
     price: 50.00,
     size: "10mg",
     productImage: "assets/SNAP-8.jpg",
-    coaImage: "assets/coa-placeholder.svg"
+    coaImages: [
+      "assets/coa-placeholder.svg"
+    ]
   },
 
   // PRODUCT 18
@@ -267,7 +297,9 @@ const products = [
     price: 50.00,
     size: "10mg",
     productImage: "assets/EPITHALON.png",
-    coaImage: "assets/COA-26092601.jpg"
+    coaImages: [
+      "assets/COA-26092601.jpg"
+    ]
   },
 
   // PRODUCT 20
@@ -280,7 +312,9 @@ const products = [
       { label: "500mg", price: 70.00 }
     ],
     productImage: "assets/NAD+.png",
-    coaImage: "assets/COA-260906.jpg"
+    coaImages: [
+      "assets/COA-260906.jpg"
+    ]
   },
 
   // PRODUCT 21
@@ -292,7 +326,9 @@ const products = [
     price: 60.00,
     size: "10mg",
     productImage: "assets/THYMOSIN ALPHA-1.png",
-    coaImage: "assets/COA-26310705.jpg"
+    coaImages: [
+      "assets/COA-26310705.jpg"
+    ]
   },
 
   // PRODUCT 22
@@ -304,7 +340,9 @@ const products = [
     price: 50.00,
     size: "10mg",
     productImage: "assets/PT-141.jpg",
-    coaImage: "assets/COA-26070802.jpg"
+    coaImages: [
+      "assets/COA-26070802.jpg"
+    ]
   },
 
   // PRODUCT 23
@@ -316,7 +354,9 @@ const products = [
     price: 50.00,
     size: "10mg",
     productImage: "assets/KISSPEPTIN.jpg",
-    coaImage: "assets/COA-26072302.jpg"
+    coaImages: [
+      "assets/COA-26072302.jpg"
+    ]
   },
 
   // PRODUCT 24
@@ -328,7 +368,9 @@ const products = [
     price: 55.00,
     size: "10mg",
     productImage: "assets/MELANOTAN.jpg",
-    coaImage: "assets/COA-261704.jpg"
+    coaImages: [
+      "assets/COA-261704.jpg"
+    ]
   },
 
   // PRODUCT 25
@@ -340,7 +382,9 @@ const products = [
     price: 55.00,
     size: "10mg",
     productImage: "assets/MELANOTAN.jpg",
-    coaImage: "assets/COA-26092502.jpg"
+    coaImages: [
+      "assets/COA-26092502.jpg"
+    ]
   },
 
   // PRODUCT 26
@@ -352,7 +396,9 @@ const products = [
     price: 60.00,
     size: "10mg",
     productImage: "assets/DSIP.png",
-    coaImage: "assets/COA-26100202.jpg"
+    coaImages: [
+      "assets/COA-26100202.jpg"
+    ]
   },
 
   // PRODUCT 27
@@ -364,7 +410,9 @@ const products = [
     price: 60.00,
     size: "10mg",
     productImage: "assets/VIP.jpg",
-    coaImage: "assets/COA-261004.jpg"
+    coaImages: [
+      "assets/COA-261004.jpg"
+    ]
   },
 
   // PRODUCT 29
@@ -376,7 +424,9 @@ const products = [
     price: 80.00,
     size: "50/10/10mg",
     productImage: "assets/GLOW.jpg",
-    coaImage: "assets/COA-26092301.jpg"
+    coaImages: [
+      "assets/COA-26092301.jpg"
+    ]
   },
 
   // PRODUCT 30
@@ -388,7 +438,9 @@ const products = [
     price: 75.00,
     size: "10/10mg",
     productImage: "assets/Wolverine.jpg",
-    coaImage: "assets/COA-26091601.jpg"
+    coaImages: [
+      "assets/COA-26091601.jpg"
+    ]
   },
 
  // PRODUCT 31
@@ -417,7 +469,9 @@ const products = [
     price: 100.00,
     size: "50/10/10/10mg",
     productImage: "assets/KLOW.jpg",
-    coaImage: "assets/COA-KLOW.jpg?v=20261026-1"
+    coaImages: [
+      "assets/COA-KLOW.jpg?v=20261026-1"
+    ]
   },
 
   // PRODUCT 33
@@ -446,7 +500,9 @@ const products = [
     price: 85.00,
     size: "1mg",
     productImage: "assets/IGF-1 LR3.jpg",
-    coaImage: "assets/COA-262104.jpg"
+    coaImages: [
+      "assets/COA-262104.jpg"
+    ]
   },
 ];
 function getCart(){try{const raw=localStorage.getItem('hlxCart')||sessionStorage.getItem('hlxCartBackup')||'[]';const data=JSON.parse(raw);return (Array.isArray(data)?data:[]).filter(x=>Number(x.id)!==28 && !(Number(x.id)===20 && (String(x.optionKey)==='1'||String(x.selectedOption||'').includes('1000mg'))))}catch(e){console.error('HLX cart read failed',e);return []}}
