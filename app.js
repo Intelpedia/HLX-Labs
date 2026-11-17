@@ -743,7 +743,7 @@ function renderProductDetail(){
       <section class="product-purchase">
         <div class="purchase-topline"><span class="research-label">RESEARCH PRODUCT</span><span class="tier-badge">${p.tier.toUpperCase()} TIER</span></div>
         <h1>${p.name}</h1>
-        <div class="product-price" id="productPrice">${initialOption.price.toFixed(2)}</div>${p.outOfStock?'<p class="stock-status" style="color:#e34444;font-weight:800">OUT OF STOCK</p>':''}
+        <div class="product-price" id="productPrice">$${initialOption.price.toFixed(2)}</div>${p.outOfStock?'<p class="stock-status" style="color:#e34444;font-weight:800">OUT OF STOCK</p>':''}
         <p class="product-lede">${p.desc}</p>
         <div class="purchase-rule"></div>
         <div class="purchase-controls">
