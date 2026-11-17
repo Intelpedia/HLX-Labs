@@ -12,3 +12,6 @@ verify_jwt = false
 
 [functions.tideco-dispatch]
 verify_jwt = false
+
+[functions.cleffo-payments]
+verify_jwt = false

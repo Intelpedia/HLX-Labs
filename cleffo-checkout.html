@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test Checkout | HLX Labs</title><meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="styles.css"><link rel="icon" href="assets/favicon.png">
+<style>.checkout-shell{max-width:720px;margin:40px auto;padding:24px}.checkout-shell label{display:block;margin:16px 0 6px}.checkout-shell input{width:100%;padding:12px;background:#151515;border:1px solid #555;color:white;border-radius:6px;font:inherit}.checkout-shell button{margin-top:24px}.checkout-shell .notice{font-size:16px}.checkout-shell #checkoutStatus{min-height:24px;line-height:1.5}</style>
+</head>
+<body>
+<main class="checkout-shell">
+<a href="cart.html">← Back to cart</a>
+<h1>Cleffo test checkout</h1>
+<p class="notice">This checkout is for testing. Use only the payment details supplied by Cleffo for its test environment. Test totals use the product subtotal, with no shipping or tax added.</p>
+<p id="checkoutSummary"></p>
+<form id="cleffoCheckoutForm">
+<label for="customerName">Full name</label><input id="customerName" name="name" autocomplete="name" maxlength="200" required>
+<label for="customerEmail">Email</label><input id="customerEmail" name="email" type="email" autocomplete="email" maxlength="200" required>
+<label for="customerPhone">Phone</label><input id="customerPhone" name="phone" type="tel" autocomplete="tel" required>
+<label for="addressLine1">Shipping address</label><input id="addressLine1" name="line1" autocomplete="address-line1" required>
+<label for="addressLine2">Apartment or suite (optional)</label><input id="addressLine2" name="line2" autocomplete="address-line2">
+<label for="shippingCity">City</label><input id="shippingCity" name="city" autocomplete="address-level2" required>
+<label for="shippingState">State (two-letter code)</label><input id="shippingState" name="state" autocomplete="address-level1" minlength="2" maxlength="2" pattern="[A-Za-z]{2}" required>
+<label for="shippingZip">ZIP code</label><input id="shippingZip" name="zip" autocomplete="postal-code" pattern="[0-9]{5}(-[0-9]{4})?" required>
+<p>Shipping is available within the United States. Billing and payment details are collected by Cleffo.</p>
+<button id="cleffoSubmit" type="submit" class="btn primary">CONTINUE TO TEST PAYMENT</button>
+</form>
+<p id="checkoutStatus" role="status" aria-live="polite"></p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js?v=20261117-cleffo"></script>
+<script src="cleffo-checkout.js?v=20261117-1"></script>
+</body></html>
