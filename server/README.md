@@ -1,36 +1,7 @@
-# HLX Labs TagadaPay setup
+# HLX Labs payment backend
 
-This folder contains server-side TagadaPay integration code. Never place the TagadaPay bearer token in `app.js`, HTML, or any GitHub Pages file.
+New checkout uses Cleffo through the Supabase `cleffo-payments` function.
+See [CLEFFO-INTEGRATION.md](CLEFFO-INTEGRATION.md) for configuration and testing.
 
-## Local setup
-
-1. Install Node.js 18 or newer.
-2. Copy `.env.example` to `.env`.
-3. Enter your real `TAGADA_API_TOKEN` and `TAGADA_STORE_ID` in `.env`.
-4. Set `TAGADA_DEFAULT_GRAMS` to the actual packaged shipping weight in grams.
-
-## Safe first test
-
-From the repository root:
-
-    node --env-file=.env server/tagadapay-products.js --test
-
-This creates only the first HLX catalog product.
-
-After confirming it appears correctly in TagadaPay, create the complete catalog with:
-
-    node --env-file=.env server/tagadapay-products.js --all
-
-The script writes returned TagadaPay product/variant/price IDs to
-`server/tagadapay-id-map.json`.
-
-Do not run the creation command repeatedly: the TagadaPay create-product endpoint can create duplicate products.
-
-The storefront can remain on GitHub Pages, but live checkout must call a secure server/serverless backend so the TagadaPay token remains private.
-
-
-## Supabase permanent order history
-
-Run `server/supabase-orders.sql` once in the Supabase SQL Editor. The migration creates `public.orders`, enables RLS, revokes browser writes, and grants authenticated customers SELECT access only to rows where `auth.uid() = user_id`.
-
-The storefront account page now reads this table directly with the signed-in Supabase session. Do not add a browser INSERT policy: verified TagadaPay orders should be inserted by the trusted webhook/backend using a server-side Supabase secret/service-role credential. Never expose that credential in `app.js` or GitHub Pages.
+`tagada-webhook` and `tagada-to-tideco` return HTTP 410 and do not process payment events or submit fulfillment requests.
+Historical orders and payment records remain available for reconciliation and customer order history.

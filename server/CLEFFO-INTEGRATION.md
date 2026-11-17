@@ -6,7 +6,7 @@ The deployed `cleffo-payments` Edge Function uses Cleffo development credentials
 
 - Test checkout page: `/cleffo-checkout.html`. Add products to the normal cart, then open this page.
 - Guest return page: `/cleffo-return.html`. It reads a checkout-specific token from the original browser and requests verified payment status. The token is not placed in the URL.
-- Current customer checkout remains on the existing processor until the payment and fulfillment checks below are complete.
+- The cart now routes to Cleffo test checkout. The TagadaPay SDK and payment creation code have been removed. The deployed `tagada-webhook` endpoint returns HTTP 410. Legacy processor secrets are unused and may still be stored in the project until removed through Supabase secret management.
 - All 44 size variants are mapped to the supplied TideCo SKU list in `cleffo_catalog`.
 - Test totals currently use product subtotal with zero tax and zero shipping. Live tax and shipping policy must be implemented before activating real payments.
 - Test payments use `test_completed` and are not written as paid live orders.
@@ -30,7 +30,7 @@ Cleffo created a development payment link successfully. Repeating the same reque
 2. Confirm the TideCo connection is in supplier test mode before enabling paid test dispatch. The current environment does not report `HLX_TEST_MODE=true`. Test payments therefore stop at `test_ready`.
 3. Reconcile the held probe with TideCo using its order ID if needed. It must stay unpaid.
 4. Obtain Cleffo production credentials and confirm shipping/tax rules. Live checkout is currently guarded because only test pricing is configured.
-5. Switch the cart button and replace the old headless SDK only after the new checkout is ready for customers.
+5. Activate real payments after validating the full live configuration. The cart already routes to Cleffo test checkout.
 
 ## Catalog maintenance
 
