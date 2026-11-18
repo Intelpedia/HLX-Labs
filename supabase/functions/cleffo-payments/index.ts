@@ -113,6 +113,15 @@ async function checkout(req: Request, input: any, cfg: any) {
   if (prior) {
     if (!same(prior.request_hash, requestHash)) return json({ error: "Cart changed. Start a new checkout." }, 409);
     if (!prior.payment_link) return json({ error: "Checkout is being prepared. Retry shortly." }, 409);
+    const checked = await verifyPayment(prior, cfg);
+    if (["cancelled", "failed", "expired"].includes(checked.payment_state)) {
+      return json({ error: "The previous checkout is closed. Start a new checkout.", code: "CHECKOUT_CLOSED" }, 409);
+    }
+    if (["completed", "test_completed"].includes(checked.payment_state)) {
+      await fulfill(checked);
+      return json({ payment_link: site + "/cleffo-return.html?order=" + prior.order_number,
+        order_number: prior.order_number, is_test: prior.is_test });
+    }
     return json({ payment_link: prior.payment_link, order_number: prior.order_number, is_test: prior.is_test });
   }
   let userId = null;
@@ -188,9 +197,9 @@ async function verifyPayment(saved: any, cfg: any) {
     throw new Error("Payment details do not match checkout");
   }
   if (paid.payment_status !== "completed") {
-    if (paid.payment_status === "failed" && !["completed", "test_completed"].includes(saved.payment_state)) {
-      await update(saved.order_number, { payment_state: "failed" });
-      return { ...saved, payment_state: "failed" };
+    if (["failed", "cancelled", "expired"].includes(paid.payment_status) && !["completed", "test_completed"].includes(saved.payment_state)) {
+      await update(saved.order_number, { payment_state: paid.payment_status });
+      return { ...saved, payment_state: paid.payment_status };
     }
     return saved;
   }
@@ -202,13 +211,11 @@ async function fulfill(saved: any) {
   if (!["completed", "test_completed"].includes(saved.payment_state)) return;
   if (!["pending", "test_ready"].includes(saved.fulfillment_state)) return;
   const testMode = Deno.env.get("HLX_TEST_MODE");
-  if (saved.is_test && testMode !== "true") {
-    await update(saved.order_number, { fulfillment_state: "test_ready" });
-    return;
-  }
+  const heldTest = saved.is_test && testMode !== "true";
   if (!saved.is_test && testMode !== "false") throw new Error("Supplier environment mismatch");
   const secret = Deno.env.get("HLX_FULFILLMENT_SECRET");
-  if (!secret) throw new Error("Supplier connection is not configured");
+  const supplierKey = Deno.env.get("TIDECO_API_KEY");
+  if (heldTest ? !supplierKey : !secret) throw new Error("Supplier connection is not configured");
   // Reserve once before contacting the supplier. Uncertain deliveries require reconciliation.
   const { data: claimed, error } = await admin.from("cleffo_sessions")
     .update({ fulfillment_state: "claimed" }).eq("order_number", saved.order_number)
@@ -229,16 +236,19 @@ async function fulfill(saved: any) {
         throw new Error("Could not save paid order");
       }
     }
-    const response = await fetch(project + "/functions/v1/tideco-order-intake", {
-      method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + secret },
-      body: JSON.stringify({ orderId: saved.order_number, paid: true, paidAt: new Date().toISOString(),
+    const supplierUrl = heldTest
+      ? "https://api.tidecotech.com/intake/order/" + encodeURIComponent(Deno.env.get("TIDECO_BRAND_KEY") || "hlx-labs-8dab17")
+      : project + "/functions/v1/tideco-order-intake";
+    const response = await fetch(supplierUrl, {
+      method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + (heldTest ? supplierKey : secret) },
+      body: JSON.stringify({ orderId: saved.order_number, paid: !heldTest, paidAt: new Date().toISOString(),
         customer: saved.customer, shipTo: saved.ship_to,
         lines: saved.items.map((p: any) => ({ sku: p.sku, qty: p.qty, price: p.price })),
         note: saved.is_test ? "TEST — DO NOT FULFILL" : "" }),
       signal: AbortSignal.timeout(20000),
     });
     await update(saved.order_number, { fulfillment_state: response.status === 202 ?
-      (saved.is_test ? "test_accepted" : "accepted") : "review" });
+      (heldTest ? "test_held" : saved.is_test ? "test_accepted" : "accepted") : "review" });
     if (response.status !== 202) throw new Error("Supplier did not accept the order");
   } catch (error) {
     const current = await session(saved.order_number);

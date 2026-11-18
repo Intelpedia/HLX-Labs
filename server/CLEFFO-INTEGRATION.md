@@ -27,7 +27,7 @@ Cleffo created a development payment link successfully. Repeating the same reque
 ## Remaining verification and activation
 
 1. Complete a test hosted payment using payment details provided by Cleffo. Verify Cleffo calls the webhook and the return page confirms the test state.
-2. Confirm the TideCo connection is in supplier test mode before enabling paid test dispatch. The current environment does not report `HLX_TEST_MODE=true`. Test payments therefore stop at `test_ready`.
+2. Confirm the TideCo connection is in supplier test mode before enabling paid test dispatch. Unconfirmed supplier mode uses an unpaid held order. The current environment does not report `HLX_TEST_MODE=true`. Completed test payments are sent to TideCo with `paid:false` and recorded as `test_held`, so they can be inspected without authorizing shipment.
 3. Reconcile the held probe with TideCo using its order ID if needed. It must stay unpaid.
 4. Obtain Cleffo production credentials and confirm shipping/tax rules. Live checkout is currently guarded because only test pricing is configured.
 5. Activate real payments after validating the full live configuration. The cart already routes to Cleffo test checkout.
@@ -45,3 +45,7 @@ node --test server/tests/cleffo-payments.test.cjs
 ```
 
 `server/cleffo-schema.sql` records the schema and initial catalog without credentials. The schema was applied through Supabase migration history. Do not rerun this bootstrap on a project that already has these tables.
+
+## Retry handling
+
+Reusing a checkout request first refreshes provider payment status. Closed sessions return `CHECKOUT_CLOSED`, and the browser makes one new request with a new idempotency ID and access token. Completed sessions return to their existing status page. Duplicate supplier deliveries remain blocked.

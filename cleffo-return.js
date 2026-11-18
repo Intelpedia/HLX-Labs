@@ -19,7 +19,7 @@ async function checkPayment() {
       message.textContent = 'Test payment confirmed. Order reference ' + order + '. Supplier test status ' + result.fulfillment_state.replaceAll('_', ' ') + '.';
     } else if (result.payment_state === 'completed') {
       message.textContent = 'Payment confirmed. Your order reference is ' + order + '.';
-    } else if (result.payment_state === 'failed') {
+    } else if (['failed', 'cancelled', 'expired'].includes(result.payment_state)) {
       message.textContent = 'The payment was unsuccessful. Return to your cart or contact support.';
     } else {
       message.textContent = 'Payment has not been confirmed yet. Please check again shortly. Your order reference is ' + order + '.';

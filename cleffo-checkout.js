@@ -45,11 +45,21 @@ checkoutForm.addEventListener('submit', async event => {
       const { data } = await hlxSupabase.auth.getSession();
       if (data.session) headers.Authorization = 'Bearer ' + data.session.access_token;
     }
-    const response = await fetch(cleffoEndpoint + '/checkout', {
-      method: 'POST', headers,
-      body: JSON.stringify({ ...body, request_id: draft.request_id, access_token: draft.access_token })
-    });
-    const result = await response.json();
+    async function sendCheckout() {
+      const response = await fetch(cleffoEndpoint + '/checkout', {
+        method: 'POST', headers,
+        body: JSON.stringify({ ...body, request_id: draft.request_id, access_token: draft.access_token })
+      });
+      return { response, result: await response.json() };
+    }
+    let { response, result } = await sendCheckout();
+    if (result.code === 'CHECKOUT_CLOSED') {
+      const bytes = crypto.getRandomValues(new Uint8Array(32));
+      draft = { fingerprint, request_id: crypto.randomUUID(),
+        access_token: Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('') };
+      sessionStorage.setItem('hlxCleffoDraft', JSON.stringify(draft));
+      ({ response, result } = await sendCheckout());
+    }
     if (!response.ok) throw new Error(result.error || 'Unable to start checkout.');
     if (typeof result.payment_link !== 'string' || !result.payment_link.startsWith('https://')) {
       throw new Error('The payment provider returned an invalid link.');
