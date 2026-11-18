@@ -209,9 +209,11 @@ async function verifyPayment(saved: any, cfg: any) {
 }
 async function fulfill(saved: any) {
   if (!["completed", "test_completed"].includes(saved.payment_state)) return;
-  if (!["pending", "test_ready"].includes(saved.fulfillment_state)) return;
+  const supplierTestsEnabled = saved.is_test && (await config()).CLEFFO_TIDECO_TEST_MODE === "true";
+  const eligibleStates = supplierTestsEnabled ? ["pending", "test_ready", "test_held"] : ["pending", "test_ready"];
+  if (!eligibleStates.includes(saved.fulfillment_state)) return;
   const testMode = Deno.env.get("HLX_TEST_MODE");
-  const heldTest = saved.is_test && testMode !== "true";
+  const heldTest = saved.is_test && !supplierTestsEnabled && testMode !== "true";
   if (!saved.is_test && testMode !== "false") throw new Error("Supplier environment mismatch");
   const secret = Deno.env.get("HLX_FULFILLMENT_SECRET");
   const supplierKey = Deno.env.get("TIDECO_API_KEY");
@@ -219,7 +221,7 @@ async function fulfill(saved: any) {
   // Reserve once before contacting the supplier. Uncertain deliveries require reconciliation.
   const { data: claimed, error } = await admin.from("cleffo_sessions")
     .update({ fulfillment_state: "claimed" }).eq("order_number", saved.order_number)
-    .in("fulfillment_state", ["pending", "test_ready"]).select("order_number");
+    .in("fulfillment_state", eligibleStates).select("order_number");
   if (error) throw new Error("Could not reserve fulfillment");
   if (!claimed?.length) return;
   try {
@@ -264,7 +266,7 @@ Deno.serve(async (req) => {
     const cfg = await config();
     if (req.method === "GET" && path === "health") {
       return json({ configured: true, mode: cfg.CLEFFO_BASE_URL.includes("-dev") ? "test" : "live",
-        supplier_test_mode: Deno.env.get("HLX_TEST_MODE") === "true",
+        supplier_test_mode: cfg.CLEFFO_TIDECO_TEST_MODE === "true" || Deno.env.get("HLX_TEST_MODE") === "true",
         supplier_configured: !!Deno.env.get("HLX_FULFILLMENT_SECRET") && !!Deno.env.get("TIDECO_API_KEY") });
     }
     if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);

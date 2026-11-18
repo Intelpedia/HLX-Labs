@@ -45,7 +45,7 @@ begin
   raise exception 'Server access required';
  end if;
  return (select jsonb_object_agg(name, decrypted_secret) from vault.decrypted_secrets
- where name in ('CLEFFO_API_KEY','CLEFFO_SIGNATURE_KEY','CLEFFO_CLIENT_KEY','CLEFFO_BASE_URL'));
+ where name in ('CLEFFO_API_KEY','CLEFFO_SIGNATURE_KEY','CLEFFO_CLIENT_KEY','CLEFFO_BASE_URL','CLEFFO_TIDECO_TEST_MODE'));
 end;
 $$;
 revoke all on function public.cleffo_server_config() from public, anon, authenticated;

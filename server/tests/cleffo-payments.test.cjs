@@ -7,16 +7,16 @@ const test = require('node:test');
 const path = require('node:path');
 const source = fs.readFileSync(path.join(__dirname, '../../supabase/functions/cleffo-payments/index.ts'), 'utf8')
   .replace(/^import .*\n/, '');
-function runtime() {
+function runtime(options = {}) {
   let handler;
   const writes = [];
   const supplierRequests = [];
-  const env = { SUPABASE_URL: 'https://test.supabase.co', SUPABASE_SERVICE_ROLE_KEY: 'test', HLX_TEST_MODE: 'false', TIDECO_API_KEY: 'fixture-supplier-key' };
+  const env = { SUPABASE_URL: 'https://test.supabase.co', SUPABASE_SERVICE_ROLE_KEY: 'test', HLX_TEST_MODE: 'false', TIDECO_API_KEY: 'fixture-supplier-key', HLX_FULFILLMENT_SECRET: 'fixture-internal-key' };
   const context = {
     crypto: webcrypto, TextEncoder, Response, URL, console, AbortSignal, Date,
     createClient: () => ({ rpc: async () => ({ data: {
       CLEFFO_API_KEY: 'fixture-api-key', CLEFFO_SIGNATURE_KEY: 'fixture-signature-key',
-      CLEFFO_CLIENT_KEY: 'fixture-client', CLEFFO_BASE_URL: 'https://apis-dev.cleffo.com'
+      CLEFFO_CLIENT_KEY: 'fixture-client', CLEFFO_TIDECO_TEST_MODE: options.supplierTest ? 'true' : 'false', CLEFFO_BASE_URL: 'https://apis-dev.cleffo.com'
     } }), from: () => ({ update: value => ({ eq: () => {
       writes.push(value);
       if (value.fulfillment_state === 'claimed') return { in: () => ({ select: async () => ({ data: [{ order_number: 'order' }] }) }) };
@@ -24,7 +24,7 @@ function runtime() {
     } }) }) }),
     Deno: { env: { get: key => env[key] }, serve: callback => { handler = callback; } },
     fetch: async (url, options) => {
-      if (url.includes('tidecotech.com')) {
+      if (url.includes('tidecotech.com') || url.includes('/functions/v1/tideco-order-intake')) {
         supplierRequests.push(JSON.parse(options.body));
         return new Response('{}', { status: 202 });
       }
@@ -80,4 +80,16 @@ test('cancelled provider responses are stored as cancelled', async () => {
   context.saved = { reference: 'ref', order_number: 'order', currency: 'USD', total_cents: 5000, is_test: true, payment_state: 'pending' };
   await vm.runInContext('verifyPayment(saved, {})', context);
   assert.equal(writes[0].payment_state, 'cancelled');
+});
+
+test('approved supplier tests upgrade a held order to paid test using the same order id', async () => {
+  const { context, writes, supplierRequests } = runtime({ supplierTest: true });
+  context.saved = { order_number: 'order', payment_state: 'test_completed', fulfillment_state: 'test_held',
+    is_test: true, items: [{ sku: 'fixture-sku', qty: 1, price: 50 }], customer: {}, ship_to: {} };
+  await vm.runInContext('fulfill(saved)', context);
+  assert.equal(supplierRequests.length, 1);
+  assert.equal(supplierRequests[0].orderId, 'order');
+  assert.equal(supplierRequests[0].paid, true);
+  assert.equal(supplierRequests[0].note, 'TEST — DO NOT FULFILL');
+  assert.equal(writes.at(-1).fulfillment_state, 'test_accepted');
 });

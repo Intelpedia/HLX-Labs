@@ -49,3 +49,7 @@ node --test server/tests/cleffo-payments.test.cjs
 ## Retry handling
 
 Reusing a checkout request first refreshes provider payment status. Closed sessions return `CHECKOUT_CLOSED`, and the browser makes one new request with a new idempotency ID and access token. Completed sessions return to their existing status page. Duplicate supplier deliveries remain blocked.
+
+## Supplier test approval
+
+The user confirmed TideCo has been notified that incoming orders are tests and will not be fulfilled. `CLEFFO_TIDECO_TEST_MODE=true` is stored in Vault. Completed Cleffo test payments are sent with `paid:true` and note `TEST — DO NOT FULFILL`, and recorded as `test_accepted`. A previously held order is updated using its original supplier order ID. This does not change Cleffo from development mode.
