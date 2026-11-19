@@ -2,6 +2,7 @@
 window.HLXReports = (() => {
   const sections = [
     { id: 'overviewSection', label: 'Overview' },
+    { id: 'monthlySection', label: 'Monthly sales' },
     { id: 'productsSection', label: 'Products' },
     { id: 'discountsSection', label: 'Discount codes' },
     { id: 'ordersSection', label: 'Orders' }
@@ -24,7 +25,7 @@ window.HLXReports = (() => {
   }
   function clear() {
     products = [];
-    for (const id of ['overview', 'products', 'summary', 'orders']) document.querySelector('#' + id).replaceChildren();
+    for (const id of ['overview', 'monthly', 'products', 'summary', 'orders']) document.querySelector('#' + id).replaceChildren();
   }
   function render(result) {
     const o = result.overview;
@@ -38,6 +39,8 @@ window.HLXReports = (() => {
       card.append(title,number); return card;
     }));
     document.querySelector('#coverageNote').textContent = o.historical_orders ? `${o.historical_orders} historical paid orders included. Historical discount, shipping, tax, and test details are unavailable; recorded breakdown totals cover Cleffo only.` : 'All selected orders have a recorded Cleffo payment breakdown.';
+    const months = (result.monthly || []).map(m => row([m.month, m.paid_orders, m.units, money(m.product_sales_cents), money(m.discounts_cents), money(m.shipping_cents), money(m.tax_cents), money(m.paid_total_cents), money(m.average_order_cents)]));
+    document.querySelector('#monthly').replaceChildren(...(months.length ? months : [row(['No monthly sales for this selection yet.'])]));
     products = result.products;
     renderProducts();
     document.querySelector('#summary').replaceChildren(...result.summary.map(s => row([s.code, s.paid_orders, money(s.product_sales_cents), money(s.discounts_cents), money(s.paid_total_cents)])));

@@ -1,5 +1,6 @@
 -- Read-only, server-only reporting API. Keep sections additive for future tools.
-create or replace function public.hlx_sales_report(selected_code text default null, page_offset integer default 0, start_date date default null, end_date date default null)
+drop function if exists public.hlx_sales_report(text,integer,date,date);
+create or replace function public.hlx_sales_report(selected_code text default null, page_offset integer default 0, start_date date default null, end_date date default null, date_sort text default 'desc')
 returns jsonb language sql stable security invoker set search_path = '' as $$
 with live as (
  select order_number,created_at,discount_code,subtotal_cents,discount_cents,shipping_cents,tax_cents,total_cents,payment_state,items,'Cleffo'::text as source,true as breakdown_known
@@ -10,6 +11,7 @@ with live as (
  0 as discount_cents,0 as shipping_cents,0 as tax_cents,round(o.total*100)::bigint as total_cents,'completed'::text as payment_state,o.items,
  coalesce(o.payment_provider,'Historical')::text as source,false as breakdown_known
  from public.orders o where o.payment_status='paid' and o.currency='USD'
+ and lower(coalesce(o.payment_provider,'')) not in ('tagada','tagadapay')
  and not exists(select 1 from public.cleffo_sessions c where c.order_number=o.order_number)
 ), paid as (
  select * from live union all select * from historical
@@ -41,11 +43,20 @@ with live as (
  coalesce(sum(p.discount_cents),0) as discounts_cents,coalesce(sum(p.total_cents),0) as paid_total_cents
  from public.cleffo_discount_codes c left join dated p on p.discount_code=c.code
  where c.code not like 'QA\_%' escape '\' group by c.code
+), monthly as (
+ select to_char(created_at at time zone 'America/New_York','YYYY-MM') as month,
+ count(*) as paid_orders,
+ sum(coalesce((select sum((i->>'qty')::int) from jsonb_array_elements(items) i),0)) as units,
+ sum(subtotal_cents-discount_cents) as product_sales_cents,sum(discount_cents) as discounts_cents,
+ sum(shipping_cents) as shipping_cents,sum(tax_cents) as tax_cents,sum(total_cents) as paid_total_cents,
+ round(avg(total_cents)) as average_order_cents
+ from filtered group by to_char(created_at at time zone 'America/New_York','YYYY-MM')
 ), order_page as (
- select * from filtered order by created_at desc,order_number desc limit 50 offset greatest(0,page_offset)
+ select * from filtered order by case when date_sort='asc' then created_at end asc,case when date_sort<>'asc' then created_at end desc,order_number desc limit 50 offset greatest(0,page_offset)
 )
 select jsonb_build_object(
- 'version',1,
+ 'version',2,
+ 'monthly',coalesce((select jsonb_agg(to_jsonb(m) order by case when date_sort='asc' then m.month end asc,case when date_sort<>'asc' then m.month end desc) from monthly m),'[]'::jsonb),
  'overview',(select jsonb_build_object('paid_orders',count(*),'units',coalesce((select sum(qty) from lines),0),
  'product_sales_cents',coalesce(sum(subtotal_cents-discount_cents),0),'discounts_cents',coalesce(sum(discount_cents),0),
  'shipping_cents',coalesce(sum(shipping_cents),0),'tax_cents',coalesce(sum(tax_cents),0),
@@ -53,10 +64,10 @@ select jsonb_build_object(
  'historical_orders',count(*) filter(where not breakdown_known)) from filtered),
  'products',coalesce((select jsonb_agg(to_jsonb(p) order by p.product_sales_cents desc,p.name,p.sku) from products p),'[]'::jsonb),
  'summary',coalesce((select jsonb_agg(to_jsonb(s) order by s.code) from summaries s),'[]'::jsonb),
- 'orders',coalesce((select jsonb_agg(to_jsonb(o) order by o.created_at desc,o.order_number desc) from order_page o),'[]'::jsonb),
+ 'orders',coalesce((select jsonb_agg(to_jsonb(o) order by case when date_sort='asc' then o.created_at end asc,case when date_sort<>'asc' then o.created_at end desc,o.order_number desc) from order_page o),'[]'::jsonb),
  'total_orders',(select count(*) from filtered),'page_size',50,
  'coverage',jsonb_build_object('currency','USD','timezone','America/New_York','historical_test_status','unavailable','refunds_included',false)
 );
 $$;
-revoke all on function public.hlx_sales_report(text,integer,date,date) from public,anon,authenticated;
-grant execute on function public.hlx_sales_report(text,integer,date,date) to service_role;
+revoke all on function public.hlx_sales_report(text,integer,date,date,text) from public,anon,authenticated;
+grant execute on function public.hlx_sales_report(text,integer,date,date,text) to service_role;

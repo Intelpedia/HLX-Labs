@@ -16,11 +16,13 @@ Deno.serve(async (req: Request) => {
     const code = url.searchParams.get("code")?.trim().toUpperCase() || null;
     const offset = Number(url.searchParams.get("offset") || 0);
     if ((code && !/^[A-Z0-9_-]{1,40}$/.test(code)) || !Number.isSafeInteger(offset) || offset < 0 || offset > 10000000) return json({ error: "Invalid report filter." }, 400);
+    const sort = url.searchParams.get("sort") || "desc";
+    if (!["asc", "desc"].includes(sort)) return json({ error: "Invalid date sorting." }, 400);
     const start = url.searchParams.get("start") || null;
     const end = url.searchParams.get("end") || null;
     const validDate = (value: string | null) => !value || (/^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value)) && new Date(value).toISOString().slice(0,10) === value);
     if (!validDate(start) || !validDate(end) || (start && end && start > end)) return json({ error: "Enter a valid date range." }, 400);
-    const result = await admin.rpc("hlx_sales_report", { selected_code: code, page_offset: offset, start_date: start, end_date: end });
+    const result = await admin.rpc("hlx_sales_report", { selected_code: code, page_offset: offset, start_date: start, end_date: end, date_sort: sort });
     if (result.error) throw new Error("Report query failed");
     return json(result.data);
   } catch {

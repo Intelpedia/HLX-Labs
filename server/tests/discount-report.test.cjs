@@ -40,3 +40,13 @@ test('date filters are validated and passed to the sales report',async()=>{
  for(const query of ['?start=2026-02-30','?start=2026-12-01&end=2026-11-01','?end=invalid']) assert.equal((await r.request(query)).status,400);
  assert.equal(r.calls.length,1);
 });
+
+test('date sorting is validated and passed to the database',async()=>{
+ const r=runtime({email_confirmed_at:'yes',app_metadata:{hlx_admin:true}});
+ assert.equal((await r.request('?sort=asc')).status,200);
+ assert.equal(r.calls[0].args.date_sort,'asc');
+ assert.equal((await r.request('?sort=desc')).status,200);
+ assert.equal(r.calls[1].args.date_sort,'desc');
+ assert.equal((await r.request('?sort=invalid')).status,400);
+ assert.equal(r.calls.length,2);
+});

@@ -8,6 +8,7 @@ const next = document.querySelector('#next');
 const refresh = document.querySelector('#refresh');
 const start = document.querySelector('#start');
 const end = document.querySelector('#end');
+const dateSort = document.querySelector('#dateSort');
 let offset = 0;
 let loading = false;
 let hasAccess = false;
@@ -16,7 +17,7 @@ async function loadReport() {
   if (loading) return;
   loading = true;
   const currentAccess = accessVersion;
-  for (const control of [code, start, end, previous, next, refresh]) control.disabled = true;
+  for (const control of [code, start, end, dateSort, previous, next, refresh]) control.disabled = true;
   status.textContent = 'Loading report…';
   try {
     const { data, error } = await client.auth.getSession();
@@ -25,6 +26,7 @@ async function loadReport() {
     if (code.value) params.set('code', code.value);
     if (start.value) params.set('start', start.value);
     if (end.value) params.set('end', end.value);
+    params.set('sort', dateSort.value);
     const response = await fetch('https://ttmwcwuzrqemsqfwkkyw.supabase.co/functions/v1/discount-report?' + params, { headers: { Authorization: 'Bearer ' + data.session.access_token }, cache: 'no-store' });
     const result = await response.json();
     if (!response.ok) { const e = new Error(result.error || 'Unable to load report.'); e.signIn = response.status === 401; e.denied = response.status === 403; throw e; }
@@ -46,11 +48,11 @@ async function loadReport() {
     window.HLXReports.clear();
     signIn.hidden = !error.signIn;
     status.textContent = error.message || 'Unable to load report.';
-  } finally { loading = false; code.disabled = false; start.disabled = false; end.disabled = false; refresh.disabled = false; }
+  } finally { loading = false; code.disabled = false; start.disabled = false; end.disabled = false; dateSort.disabled = false; refresh.disabled = false; }
 }
 code.addEventListener('change', () => { offset = 0; loadReport(); });
 refresh.addEventListener('click', () => { offset = 0; loadReport(); });
-for (const date of [start,end]) date.addEventListener('change', () => { offset = 0; loadReport(); });
+for (const date of [start,end,dateSort]) date.addEventListener('change', () => { offset = 0; loadReport(); });
 previous.addEventListener('click', () => { offset = Math.max(0, offset - 50); loadReport(); });
 next.addEventListener('click', () => { offset += 50; loadReport(); });
 client.auth.onAuthStateChange(event => { if (event === 'SIGNED_OUT') { hasAccess = false; accessVersion++; report.hidden = true; window.HLXReports.clear(); signIn.hidden = false; status.textContent = 'Sign in to view your reports.'; } });
