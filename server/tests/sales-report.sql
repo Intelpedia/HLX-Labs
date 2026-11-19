@@ -26,6 +26,12 @@ do $$ declare r jsonb; p jsonb; begin
  if r#>>'{monthly,0,month}'<>'2100-01' or r#>>'{monthly,1,month}'<>'2100-02' or r#>>'{orders,0,order_number}'='VERIFY_FEBRUARY' then raise exception 'Ascending order failed'; end if;
  r:=public.hlx_sales_report(null,0,'2100-01-01','2100-02-01','desc');
  if r#>>'{orders,0,order_number}'<>'VERIFY_FEBRUARY' or r#>>'{monthly,0,month}'<>'2100-02' then raise exception 'Descending order failed'; end if;
+ if (r#>>'{overview,gross_revenue_cents}')::int is distinct from 23000 or (r#>>'{overview,net_revenue_cents}')::int is distinct from 22000 then raise exception 'Gross/net revenue incorrect'; end if;
+ if (r#>>'{monthly,0,net_growth_percent}')::numeric is distinct from -95.2 then raise exception 'Net growth incorrect'; end if;
+ select x into p from jsonb_array_elements(r->'products') x where x->>'sku'='VERIFY-SKU';
+ if (p->>'current_month_units')::int is distinct from 1 or (p->>'previous_month_units')::int is distinct from 3 or (p->>'net_growth_percent')::numeric is distinct from -92.9 then raise exception 'Product trends incorrect'; end if;
+ r:=public.hlx_sales_report(null,0,'2100-01-01','2100-04-30','asc');
+ if jsonb_array_length(r->'monthly')<>4 or (r#>>'{monthly,2,net_revenue_cents}')::int is distinct from 0 or (r#>>'{monthly,2,net_growth_percent}')::numeric is distinct from -100.0 or r#>>'{monthly,3,net_growth_percent}' is not null then raise exception 'Zero-sales month or zero baseline growth incorrect'; end if;
  r:=public.hlx_sales_report('VERIFY_SALES',0,'2100-01-01','2100-01-01');
  if (r->>'total_orders')::int<>1 then raise exception 'Code filter failed'; end if;
  r:=public.hlx_sales_report(null,0,'2100-01-02','2100-01-02');
