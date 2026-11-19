@@ -6,51 +6,52 @@ const code = document.querySelector('#code');
 const previous = document.querySelector('#previous');
 const next = document.querySelector('#next');
 const refresh = document.querySelector('#refresh');
-const money = cents => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
+const start = document.querySelector('#start');
+const end = document.querySelector('#end');
 let offset = 0;
 let loading = false;
-function row(values) {
-  const tr = document.createElement('tr');
-  for (const value of values) { const td = document.createElement('td'); td.textContent = value; tr.append(td); }
-  return tr;
-}
+let hasAccess = false;
+let accessVersion = 0;
 async function loadReport() {
   if (loading) return;
   loading = true;
-  for (const control of [code, previous, next, refresh]) control.disabled = true;
+  const currentAccess = accessVersion;
+  for (const control of [code, start, end, previous, next, refresh]) control.disabled = true;
   status.textContent = 'Loading report…';
   try {
     const { data, error } = await client.auth.getSession();
     if (error || !data.session) { const e = new Error('Sign in to view your reports.'); e.signIn = true; throw e; }
     const params = new URLSearchParams({ offset: String(offset) });
     if (code.value) params.set('code', code.value);
+    if (start.value) params.set('start', start.value);
+    if (end.value) params.set('end', end.value);
     const response = await fetch('https://ttmwcwuzrqemsqfwkkyw.supabase.co/functions/v1/discount-report?' + params, { headers: { Authorization: 'Bearer ' + data.session.access_token }, cache: 'no-store' });
     const result = await response.json();
-    if (!response.ok) { const e = new Error(result.error || 'Unable to load report.'); e.signIn = response.status === 401; throw e; }
+    if (!response.ok) { const e = new Error(result.error || 'Unable to load report.'); e.signIn = response.status === 401; e.denied = response.status === 403; throw e; }
+    if (currentAccess !== accessVersion) return;
+    hasAccess = true;
     signIn.hidden = true;
     const selected = code.value;
-    code.replaceChildren(new Option('All codes', ''));
+    code.replaceChildren(new Option('All orders', ''));
     for (const summary of result.summary) code.add(new Option(summary.code, summary.code));
     code.value = selected;
-    document.querySelector('#summary').replaceChildren(...result.summary.map(s => row([s.code, s.paid_orders, money(s.product_sales_cents), money(s.discounts_cents), money(s.paid_total_cents)])));
-    const orders = result.orders.map(o => row([o.order_number, new Date(o.created_at).toLocaleString(), o.discount_code, money(o.subtotal_cents - o.discount_cents), money(o.discount_cents), money(o.total_cents), 'Paid']));
-    document.querySelector('#orders').replaceChildren(...(orders.length ? orders : [row(['No paid orders for this selection yet.'])]));
+    window.HLXReports.render(result);
     document.querySelector('#count').textContent = result.total_orders ? `${offset + 1}–${Math.min(offset + result.page_size, result.total_orders)} of ${result.total_orders} paid orders` : '0 paid orders';
     previous.disabled = offset === 0;
     next.disabled = offset + result.page_size >= result.total_orders;
     report.hidden = false;
     status.textContent = 'Updated ' + new Date().toLocaleTimeString();
   } catch (error) {
-    report.hidden = true;
-    document.querySelector('#summary').replaceChildren();
-    document.querySelector('#orders').replaceChildren();
+    report.hidden = !!error.signIn || !!error.denied || !hasAccess;
+    window.HLXReports.clear();
     signIn.hidden = !error.signIn;
     status.textContent = error.message || 'Unable to load report.';
-  } finally { loading = false; code.disabled = false; refresh.disabled = false; }
+  } finally { loading = false; code.disabled = false; start.disabled = false; end.disabled = false; refresh.disabled = false; }
 }
 code.addEventListener('change', () => { offset = 0; loadReport(); });
-refresh.addEventListener('click', loadReport);
+refresh.addEventListener('click', () => { offset = 0; loadReport(); });
+for (const date of [start,end]) date.addEventListener('change', () => { offset = 0; loadReport(); });
 previous.addEventListener('click', () => { offset = Math.max(0, offset - 50); loadReport(); });
 next.addEventListener('click', () => { offset += 50; loadReport(); });
-client.auth.onAuthStateChange(event => { if (event === 'SIGNED_OUT') { report.hidden = true; document.querySelector('#summary').replaceChildren(); document.querySelector('#orders').replaceChildren(); signIn.hidden = false; status.textContent = 'Sign in to view your reports.'; } });
+client.auth.onAuthStateChange(event => { if (event === 'SIGNED_OUT') { hasAccess = false; accessVersion++; report.hidden = true; window.HLXReports.clear(); signIn.hidden = false; status.textContent = 'Sign in to view your reports.'; } });
 loadReport();

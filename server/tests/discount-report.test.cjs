@@ -31,3 +31,12 @@ test('invalid pagination is rejected before querying order data',async()=>{
  assert.equal((await r.request('?offset=-1')).status,400);
  assert.equal(r.calls.length,0);
 });
+test('date filters are validated and passed to the sales report',async()=>{
+ const r=runtime({email_confirmed_at:'yes',app_metadata:{hlx_admin:true}});
+ assert.equal((await r.request('?start=2026-11-01&end=2026-11-30')).status,200);
+ assert.equal(r.calls[0].name,'hlx_sales_report');
+ assert.equal(r.calls[0].args.start_date,'2026-11-01');
+ assert.equal(r.calls[0].args.end_date,'2026-11-30');
+ for(const query of ['?start=2026-02-30','?start=2026-12-01&end=2026-11-01','?end=invalid']) assert.equal((await r.request(query)).status,400);
+ assert.equal(r.calls.length,1);
+});
