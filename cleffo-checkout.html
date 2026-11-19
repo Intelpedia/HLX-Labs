@@ -10,7 +10,7 @@
 <main class="checkout-shell">
 <a href="cart.html">← Back to cart</a>
 <h1>Secure checkout</h1>
-<p class="notice">Shipping is $15 below $200 and free on product subtotals of $200 or more. Review the final total on the payment page.</p>
+<p class="notice">Shipping is $15 below $200 and free on product subtotals of $200 or more before discounts. Discounts apply to products only. Review the final total on the payment page.</p>
 <p id="checkoutSummary"></p>
 <form id="cleffoCheckoutForm">
 <label for="customerName">Full name</label><input id="customerName" name="name" autocomplete="name" maxlength="200" required>
@@ -22,11 +22,15 @@
 <label for="shippingState">State (two-letter code)</label><input id="shippingState" name="state" autocomplete="address-level1" minlength="2" maxlength="2" pattern="[A-Za-z]{2}" required>
 <label for="shippingZip">ZIP code</label><input id="shippingZip" name="zip" autocomplete="postal-code" pattern="[0-9]{5}(-[0-9]{4})?" required>
 <p>Shipping is available within the United States. Billing and payment details are collected by Cleffo.</p>
+<label for="discountCode">Discount code (optional)</label>
+<div style="display:flex;gap:12px;align-items:center"><input id="discountCode" name="discount_code" autocomplete="off" maxlength="40"><button class="btn" id="applyDiscount" type="button" style="margin-top:0">APPLY</button></div>
+<p id="discountMessage" role="status" aria-live="polite"></p>
+<div id="checkoutTotals" aria-live="polite"></div>
 <button id="cleffoSubmit" type="submit" class="btn primary">CONTINUE TO PAYMENT</button>
 </form>
 <p id="checkoutStatus" role="status" aria-live="polite"></p>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js?v=20261117-cleffo"></script>
-<script src="cleffo-checkout.js?v=20261118-live"></script>
+<script src="cleffo-checkout.js?v=20261118-discounts"></script>
 </body></html>

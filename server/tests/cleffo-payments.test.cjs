@@ -119,3 +119,46 @@ test('live verification rejects payment below merchandise plus shipping', async 
     subtotal_cents: 5000, shipping_cents: 1500, is_test: false };
   await assert.rejects(vm.runInContext('verifyPayment(saved, {})', context), /do not match/);
 });
+
+test('percentage and fixed discounts round to cents and cannot exceed merchandise', () => {
+  const { context } = runtime();
+  assert.equal(vm.runInContext('discountForSubtotal(10001, "percent", 12.5)', context), 1250);
+  assert.equal(vm.runInContext('discountForSubtotal(5000, "fixed", 10)', context), 1000);
+  assert.equal(vm.runInContext('discountForSubtotal(5000, "fixed", 100)', context), 5000);
+});
+test('allocation preserves exact cents and quantities across mixed products', () => {
+  const { context } = runtime();
+  context.items = [{ sku: 'a', qty: 3, price: 50 }, { sku: 'b', qty: 7, price: 17.99 }];
+  for (const discount of [1, 17, 1000, 13789, 27593]) {
+    context.discount = discount;
+    const rows = vm.runInContext('allocateDiscount(items, discount)', context);
+    assert.equal(rows.reduce((sum, row) => sum + Math.round(row.price * 100) * row.qty, 0), 27593 - discount);
+    assert.equal(rows.filter(row => row.sku === 'a').reduce((sum, row) => sum + row.qty, 0), 3);
+    assert.equal(rows.filter(row => row.sku === 'b').reduce((sum, row) => sum + row.qty, 0), 7);
+    assert.ok(rows.every(row => row.price >= 0 && row.qty > 0));
+  }
+});
+test('quote validates private codes and ignores customer-supplied prices', async () => {
+  const { context } = runtime();
+  context.mockFrom = table => ({ select: () => table === 'cleffo_catalog'
+    ? { in: async () => ({ data: [{ cart_key: 'x', product_id: 1, option_key: '0', name: 'Fixture', size: '10mg', sku: 'a', unit_cents: 5000, active: true }] }) }
+    : { eq: (_key, code) => ({ maybeSingle: async () => ({ data: code === 'SAVE' ? { active: true, discount_type: 'percent', amount: 10, minimum_subtotal_cents: 0 } : null }) }) } });
+  vm.runInContext('admin.from = mockFrom', context);
+  context.input = { items: [{ cart_key: 'x', qty: 4, price: 0.01 }], discount_code: 'save' };
+  let result = await vm.runInContext('priceCart(input)', context);
+  assert.equal(result.subtotal, 20000);
+  assert.equal(result.discountCents, 2000);
+  assert.equal(result.shippingCents, 0);
+  assert.equal(result.totalCents, 18000);
+  context.input.discount_code = 'UNKNOWN';
+  result = await vm.runInContext('priceCart(input)', context);
+  assert.equal(result.status, 400);
+});
+test('live verification uses discounted merchandise amount and records processor tax', async () => {
+  const { context, writes } = runtime();
+  context.saved = { reference: 'ref', order_number: 'order', currency: 'USD', total_cents: 4500,
+    subtotal_cents: 5000, discount_cents: 2000, shipping_cents: 1500, is_test: false };
+  await vm.runInContext('verifyPayment(saved, {})', context);
+  assert.equal(writes[0].total_cents, 5000);
+  assert.equal(writes[0].tax_cents, 500);
+});

@@ -62,6 +62,73 @@ function shippingCentsForSubtotal(subtotal: number) {
   return subtotal < 20000 ? 1500 : 0;
 }
 
+function discountForSubtotal(subtotal: number, kind: string, amount: number) {
+  return Math.min(subtotal, Math.round(kind === "percent" ? subtotal * amount / 100 : amount * 100));
+}
+
+function allocateDiscount(items: any[], discountCents: number) {
+  const subtotal = items.reduce((sum, item) => sum + Math.round(item.price * 100) * item.qty, 0);
+  let cumulative = 0;
+  let allocated = 0;
+  return items.flatMap(item => {
+    const gross = Math.round(item.price * 100) * item.qty;
+    cumulative += gross;
+    const nextAllocated = Math.round(discountCents * cumulative / subtotal);
+    const net = gross - (nextAllocated - allocated);
+    allocated = nextAllocated;
+    const lowerUnitCents = Math.floor(net / item.qty);
+    const higherQty = net % item.qty;
+    const rows = [];
+    if (item.qty > higherQty) rows.push({ ...item, qty: item.qty - higherQty, price: lowerUnitCents / 100 });
+    if (higherQty) rows.push({ ...item, qty: higherQty, price: (lowerUnitCents + 1) / 100 });
+    return rows;
+  });
+}
+
+async function priceCart(input: any) {
+  if (!Array.isArray(input.items) || !input.items.length || input.items.length > 50) {
+    return json({ error: "Your cart is empty or too large" }, 400);
+  }
+  const requested = new Map<string, number>();
+  for (const item of input.items) {
+    if (!Number.isInteger(item.qty) || item.qty < 1 || item.qty > 100 ||
+        typeof item.cart_key !== "string") return json({ error: "Invalid cart item" }, 400);
+    const qty = (requested.get(item.cart_key) || 0) + item.qty;
+    if (qty > 100) return json({ error: "Quantity exceeds checkout limit" }, 400);
+    requested.set(item.cart_key, qty);
+  }
+  const { data: catalog, error: catalogError } = await admin.from("cleffo_catalog")
+    .select("*").in("cart_key", Array.from(requested.keys()));
+  if (catalogError) throw new Error("Catalog unavailable");
+  if (catalog.length !== requested.size || catalog.some((p: any) => !p.active)) {
+    return json({ error: "A selected size is unavailable. Refresh your cart." }, 409);
+  }
+  const originalItems = catalog.map((p: any) => ({
+    id: p.product_id, optionKey: p.option_key, name: p.name, selectedOption: p.size,
+    sku: p.sku, qty: requested.get(p.cart_key), price: p.unit_cents / 100, image: p.image,
+  })).sort((a: any, b: any) => (String(a.id) + a.optionKey).localeCompare(String(b.id) + b.optionKey));
+  const subtotal = originalItems.reduce((sum: number, p: any) => sum + Math.round(p.price * 100) * p.qty, 0);
+  const shippingCents = shippingCentsForSubtotal(subtotal);
+  const discountCode = text(input.discount_code, 41).toUpperCase();
+  let discountCents = 0;
+  if (discountCode) {
+    if (!/^[A-Z0-9_-]{1,40}$/.test(discountCode)) return json({ error: "Enter a valid discount code" }, 400);
+    const { data: discount, error } = await admin.from("cleffo_discount_codes")
+      .select("*").eq("code", discountCode).maybeSingle();
+    if (error) throw new Error("Discount lookup unavailable");
+    if (!discount?.active || (discount.expires_at && new Date(discount.expires_at).getTime() <= Date.now()) ||
+        subtotal < discount.minimum_subtotal_cents) {
+      return json({ error: "This discount code is invalid, expired, or does not meet the minimum order amount" }, 400);
+    }
+    discountCents = discountForSubtotal(subtotal, discount.discount_type, Number(discount.amount));
+  }
+  const items = discountCents ? allocateDiscount(originalItems, discountCents) : originalItems;
+  const totalCents = subtotal - discountCents + shippingCents;
+  if (totalCents < 1) return json({ error: "This code reduces the order below the minimum payment amount" }, 400);
+  return { items, subtotal, shippingCents, totalCents, discountCents, discountCode };
+
+}
+
 async function checkout(req: Request, input: any, cfg: any) {
   if (req.headers.get("origin") && req.headers.get("origin") !== site) {
     return json({ error: "Use the HLX Labs checkout" }, 403);
@@ -84,34 +151,13 @@ async function checkout(req: Request, input: any, cfg: any) {
       !/^[A-Z]{2}$/.test(shipTo.state) || !/^\d{5}(-\d{4})?$/.test(shipTo.zip)) {
     return json({ error: "Enter your contact information and a complete US shipping address" }, 400);
   }
-  if (!Array.isArray(input.items) || !input.items.length || input.items.length > 50) {
-    return json({ error: "Your cart is empty or too large" }, 400);
-  }
-  const requested = new Map<string, number>();
-  for (const item of input.items) {
-    if (!Number.isInteger(item.qty) || item.qty < 1 || item.qty > 100 ||
-        typeof item.cart_key !== "string") return json({ error: "Invalid cart item" }, 400);
-    const qty = (requested.get(item.cart_key) || 0) + item.qty;
-    if (qty > 100) return json({ error: "Quantity exceeds checkout limit" }, 400);
-    requested.set(item.cart_key, qty);
-  }
-  const { data: catalog, error: catalogError } = await admin.from("cleffo_catalog")
-    .select("*").in("cart_key", Array.from(requested.keys()));
-  if (catalogError) throw new Error("Catalog unavailable");
-  if (catalog.length !== requested.size || catalog.some((p: any) => !p.active)) {
-    return json({ error: "A selected size is unavailable. Refresh your cart." }, 409);
-  }
-  const items = catalog.map((p: any) => ({
-    id: p.product_id, optionKey: p.option_key, name: p.name, selectedOption: p.size,
-    sku: p.sku, qty: requested.get(p.cart_key), price: p.unit_cents / 100, image: p.image,
-  })).sort((a: any, b: any) => (String(a.id) + a.optionKey).localeCompare(String(b.id) + b.optionKey));
-  const subtotal = items.reduce((sum: number, p: any) => sum + Math.round(p.price * 100) * p.qty, 0);
-  const shippingCents = shippingCentsForSubtotal(subtotal);
-  const totalCents = subtotal + shippingCents;
+  const pricing = await priceCart(input);
+  if (pricing instanceof Response) return pricing;
+  const { items, subtotal, shippingCents, totalCents, discountCents, discountCode } = pricing;
   const isTest = cfg.CLEFFO_BASE_URL === "https://apis-dev.cleffo.com";
   // Tax is configured by the merchant in Cleffo's processor panel.
   const accessHash = await hash(input.access_token);
-  const requestHash = await hash(JSON.stringify({ items, customer, shipTo, accessHash }));
+  const requestHash = await hash(JSON.stringify({ items, customer, shipTo, accessHash, ...(discountCode ? { discountCode } : {}) }));
   const { data: prior, error: priorError } = await admin.from("cleffo_sessions")
     .select("*").eq("request_id", input.request_id).maybeSingle();
   if (priorError) throw new Error("Checkout lookup unavailable");
@@ -140,7 +186,7 @@ async function checkout(req: Request, input: any, cfg: any) {
   const { error: insertError } = await admin.from("cleffo_sessions").insert({
     order_number: orderNumber, request_id: input.request_id, request_hash: requestHash,
     access_hash: accessHash, user_id: userId, is_test: isTest,
-    items, customer, ship_to: shipTo, subtotal_cents: subtotal, shipping_cents: shippingCents, total_cents: totalCents,
+    items, customer, ship_to: shipTo, subtotal_cents: subtotal, shipping_cents: shippingCents, total_cents: totalCents, discount_code: discountCode || null, discount_cents: discountCents,
   });
   if (insertError?.code === "23505") return json({ error: "Checkout is being prepared. Retry shortly." }, 409);
   if (insertError) throw new Error("Could not save checkout");
@@ -154,14 +200,15 @@ async function checkout(req: Request, input: any, cfg: any) {
       customer_detail: { name: customer.name, email: customer.email, phone_no: customer.phone,
         shipping_address: address },
       products: [
-        ...items.map((p: any) => ({ name: p.name + " " + p.selectedOption,
-          product_id: p.sku, quantity: p.qty, price: p.price, image: p.image })),
+        ...items.map((p: any, index: number) => ({ name: p.name + " " + p.selectedOption,
+          product_id: p.sku + "-" + index, quantity: p.qty, price: p.price, image: p.image })),
         ...(shippingCents ? [{ name: "Shipping", product_id: "HLX-SHIPPING", quantity: 1,
           price: shippingCents / 100, image: site + "/assets/logo.png" }] : []),
       ],
       price: { sub_total: totalCents / 100, tax: 0, total: totalCents / 100, currency: "USD" },
     },
     metadata: { source: "api", cleffo_client_key: cfg.CLEFFO_CLIENT_KEY,
+      ...(discountCode ? { discount_code: discountCode } : {}),
       redirect_url: site + "/cleffo-return.html?order=" + orderNumber,
       notify_url: project + "/functions/v1/cleffo-payments/webhook" },
   };
@@ -201,7 +248,7 @@ async function verifyPayment(saved: any, cfg: any) {
   const paid = result.data;
   const paidCents = Math.round(Number(paid?.total_amount) * 100);
   const baseCents = saved.subtotal_cents != null
-    ? saved.subtotal_cents + (saved.shipping_cents || 0) : saved.total_cents;
+    ? saved.subtotal_cents - (saved.discount_cents || 0) + (saved.shipping_cents || 0) : saved.total_cents;
   if (result.status !== true || paid?.transaction_reference_number !== saved.reference ||
       paid.merchant_order_id !== saved.order_number ||
       String(paid.currency).toUpperCase() !== saved.currency ||
@@ -307,6 +354,13 @@ Deno.serve(async (req) => {
       return json({ received: true });
     }
     const input = JSON.parse(raw);
+    if (path === "quote") {
+      const pricing = await priceCart(input);
+      if (pricing instanceof Response) return pricing;
+      return json({ subtotal_cents: pricing.subtotal, shipping_cents: pricing.shippingCents,
+        discount_cents: pricing.discountCents, discount_code: pricing.discountCode,
+        total_cents: pricing.totalCents });
+    }
     if (path === "checkout") return await checkout(req, input, cfg);
     if (path === "status") {
       const saved = await session(text(input.order_number));

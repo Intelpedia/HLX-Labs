@@ -27,6 +27,7 @@ checkoutForm.addEventListener('submit', async event => {
     const fields = new FormData(checkoutForm);
     const body = {
       items,
+      discount_code: document.querySelector('#discountCode').value.trim().toUpperCase(),
       customer: { name: fields.get('name'), email: fields.get('email'), phone: fields.get('phone') },
       shipTo: { line1: fields.get('line1'), line2: fields.get('line2'), city: fields.get('city'),
         state: fields.get('state'), zip: fields.get('zip') }
@@ -70,4 +71,47 @@ checkoutForm.addEventListener('submit', async event => {
     checkoutStatus.textContent = error.message || 'Unable to start checkout. Please try again.';
     checkoutButton.disabled = false;
   }
+});
+
+const discountInput = document.querySelector('#discountCode');
+const applyDiscountButton = document.querySelector('#applyDiscount');
+const discountMessage = document.querySelector('#discountMessage');
+const totals = document.querySelector('#checkoutTotals');
+let quoteVersion = 0;
+function invalidateQuote() {
+  quoteVersion++;
+  totals.replaceChildren();
+  discountMessage.textContent = '';
+}
+discountInput.addEventListener('input', invalidateQuote);
+applyDiscountButton.disabled = !cart.length;
+applyDiscountButton.addEventListener('click', async () => {
+  const currentVersion = ++quoteVersion;
+  applyDiscountButton.disabled = true;
+  discountMessage.textContent = 'Checking discount…';
+  try {
+    const response = await fetch(cleffoEndpoint + '/quote', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items, discount_code: discountInput.value.trim().toUpperCase() })
+    });
+    const result = await response.json();
+    if (currentVersion !== quoteVersion) return;
+    if (!response.ok) throw new Error(result.error || 'Unable to check this code.');
+    const money = cents => (cents < 0 ? '-$' : '$') + (Math.abs(cents) / 100).toFixed(2);
+    discountMessage.textContent = result.discount_code
+      ? `Code ${result.discount_code} applied. You save ${money(result.discount_cents)}.`
+      : 'No discount code applied.';
+    totals.replaceChildren();
+    for (const [label, value] of [['Subtotal', result.subtotal_cents], ['Discount', -result.discount_cents],
+      ['Shipping', result.shipping_cents], ['Total before tax', result.total_cents]]) {
+      const row = document.createElement('p');
+      row.textContent = label + ': ' + money(value);
+      totals.append(row);
+    }
+  } catch (error) {
+    if (currentVersion === quoteVersion) {
+      discountMessage.textContent = error.message || 'Unable to check this code.';
+      totals.replaceChildren();
+    }
+  } finally { applyDiscountButton.disabled = !cart.length; }
 });

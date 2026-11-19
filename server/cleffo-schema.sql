@@ -26,6 +26,8 @@ create table public.cleffo_sessions (
   subtotal_cents integer not null,
   tax_cents integer not null default 0,
   shipping_cents integer not null default 0 check (shipping_cents >= 0),
+  discount_code text,
+  discount_cents integer not null default 0 check (discount_cents >= 0),
   total_cents integer not null,
   currency text not null default 'USD',
   reference text unique,
@@ -96,3 +98,16 @@ insert into public.cleffo_catalog(cart_key, product_id, option_key, name, size, 
 ('33::0',33,'0','SS-31','10mg','SS-31-10mg',6000,'https://hlxlabs.com/assets/SS-31.jpg',true),
 ('33::1',33,'1','SS-31','30mg','SS-31-30mg',12000,'https://hlxlabs.com/assets/SS-31.jpg',true),
 ('34::default',34,'default','IGF-1 LR3','1mg','IGF-1-LR3-1mg',8500,'https://hlxlabs.com/assets/IGF-1 LR3.jpg',true);
+
+create table public.cleffo_discount_codes (
+  code text primary key check (code ~ '^[A-Z0-9_-]{1,40}$'),
+  discount_type text not null check (discount_type in ('percent', 'fixed')),
+  amount numeric(12,2) not null check (amount > 0),
+  active boolean not null default true,
+  expires_at timestamptz,
+  minimum_subtotal_cents integer not null default 0 check (minimum_subtotal_cents >= 0),
+  check (discount_type <> 'percent' or amount <= 100)
+);
+alter table public.cleffo_discount_codes enable row level security;
+revoke all on public.cleffo_discount_codes from public, anon, authenticated;
+grant all on public.cleffo_discount_codes to service_role;

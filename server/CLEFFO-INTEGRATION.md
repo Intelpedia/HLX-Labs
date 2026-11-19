@@ -57,3 +57,10 @@ The user confirmed TideCo has been notified that incoming orders are tests and w
 ## Production checkout activation
 
 The merchant requested removing the live guard and configuring tax in the processor panel. Checkout uses the configured production credentials. Shipping is $15 below $200, free at $200 or more. The API sends base tax 0; processor-panel automatic tax behavior must be verified with Cleffo. The verified status API may report a higher tax-inclusive amount, which is saved as the final total and tax difference. Cleffo test and outage labels have been removed. TideCo remains under the supplier hold reported by the merchant.
+
+
+### Discount codes
+
+The checkout Apply button uses the server `/quote` endpoint. Checkout validates the code again against the private `cleffo_discount_codes` table. Manage codes in Supabase: uppercase `code`, `discount_type` of `percent` or `fixed`, and `amount` in percent or USD respectively. Optional `expires_at` and `minimum_subtotal_cents` restrict redemption; set `active=false` to disable. No customer codes are seeded.
+
+Discounts apply only to merchandise, capped at its subtotal. The $200 free-shipping qualification uses the original merchandise subtotal. Exact cent allocation may split a SKU into two price rows while preserving total quantity. Cleffo receives the reduced product prices, matching reduced totals, and `metadata.discount_code`; it does not need a native coupon feature. The session records the original subtotal, code, and discount. Payment verification subtracts the discount before comparing the amount paid; supplier lines use discounted unit prices. Tax, if configured at the processor, is additional. Zero-total orders are not supported by this payment-link flow.
