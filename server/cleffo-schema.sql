@@ -25,6 +25,7 @@ create table public.cleffo_sessions (
   ship_to jsonb not null,
   subtotal_cents integer not null,
   tax_cents integer not null default 0,
+  shipping_cents integer not null default 0 check (shipping_cents >= 0),
   total_cents integer not null,
   currency text not null default 'USD',
   reference text unique,

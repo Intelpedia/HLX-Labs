@@ -8,7 +8,7 @@ The deployed `cleffo-payments` Edge Function uses Cleffo development credentials
 - Guest return page: `/cleffo-return.html`. It reads a checkout-specific token from the original browser and requests verified payment status. The token is not placed in the URL.
 - The cart now routes to Cleffo test checkout. The TagadaPay SDK and payment creation code have been removed. The deployed `tagada-webhook` endpoint returns HTTP 410. Legacy processor secrets are unused and may still be stored in the project until removed through Supabase secret management.
 - All 44 size variants are mapped to the supplied TideCo SKU list in `cleffo_catalog`.
-- Test totals currently use product subtotal with zero tax and zero shipping. Live tax and shipping policy must be implemented before activating real payments.
+- Shipping is $15 for product subtotals below $200 and free starting at $200. Cleffo receives shipping as a separate payment line, excluded from supplier SKU lines. A live sales-tax service connection is still required.
 - Test payments use `test_completed` and are not written as paid live orders.
 
 ## Endpoints

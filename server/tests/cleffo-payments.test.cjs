@@ -93,3 +93,10 @@ test('approved supplier tests upgrade a held order to paid test using the same o
   assert.equal(supplierRequests[0].note, 'TEST — DO NOT FULFILL');
   assert.equal(writes.at(-1).fulfillment_state, 'test_accepted');
 });
+
+test('shipping is $15 below $200 and free starting at $200', () => {
+  const { context } = runtime();
+  assert.equal(vm.runInContext('shippingCentsForSubtotal(19999)', context), 1500);
+  assert.equal(vm.runInContext('shippingCentsForSubtotal(20000)', context), 0);
+  assert.equal(vm.runInContext('shippingCentsForSubtotal(25000)', context), 0);
+});

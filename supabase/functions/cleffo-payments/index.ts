@@ -58,6 +58,10 @@ async function update(orderNumber: string, values: Record<string, unknown>) {
   if (error) throw new Error("Could not save payment state");
 }
 
+function shippingCentsForSubtotal(subtotal: number) {
+  return subtotal < 20000 ? 1500 : 0;
+}
+
 async function checkout(req: Request, input: any, cfg: any) {
   if (req.headers.get("origin") && req.headers.get("origin") !== site) {
     return json({ error: "Use the HLX Labs checkout" }, 403);
@@ -102,8 +106,10 @@ async function checkout(req: Request, input: any, cfg: any) {
     sku: p.sku, qty: requested.get(p.cart_key), price: p.unit_cents / 100, image: p.image,
   })).sort((a: any, b: any) => (String(a.id) + a.optionKey).localeCompare(String(b.id) + b.optionKey));
   const subtotal = items.reduce((sum: number, p: any) => sum + Math.round(p.price * 100) * p.qty, 0);
+  const shippingCents = shippingCentsForSubtotal(subtotal);
+  const totalCents = subtotal + shippingCents;
   const isTest = cfg.CLEFFO_BASE_URL === "https://apis-dev.cleffo.com";
-  // Live tax/shipping policy must be configured before accepting real payments.
+  // Shipping is configured. Live sales-tax calculation still needs a tax-service connection.
   if (!isTest) return json({ error: "Live checkout configuration is not complete" }, 503);
   const accessHash = await hash(input.access_token);
   const requestHash = await hash(JSON.stringify({ items, customer, shipTo, accessHash }));
@@ -134,7 +140,7 @@ async function checkout(req: Request, input: any, cfg: any) {
   const { error: insertError } = await admin.from("cleffo_sessions").insert({
     order_number: orderNumber, request_id: input.request_id, request_hash: requestHash,
     access_hash: accessHash, user_id: userId, is_test: isTest,
-    items, customer, ship_to: shipTo, subtotal_cents: subtotal, total_cents: subtotal,
+    items, customer, ship_to: shipTo, subtotal_cents: subtotal, shipping_cents: shippingCents, total_cents: totalCents,
   });
   if (insertError?.code === "23505") return json({ error: "Checkout is being prepared. Retry shortly." }, 409);
   if (insertError) throw new Error("Could not save checkout");
@@ -147,9 +153,13 @@ async function checkout(req: Request, input: any, cfg: any) {
       merchant_order_id: orderNumber,
       customer_detail: { name: customer.name, email: customer.email, phone_no: customer.phone,
         shipping_address: address },
-      products: items.map((p: any) => ({ name: p.name + " " + p.selectedOption,
-        product_id: p.sku, quantity: p.qty, price: p.price, image: p.image })),
-      price: { sub_total: subtotal / 100, tax: 0, total: subtotal / 100, currency: "USD" },
+      products: [
+        ...items.map((p: any) => ({ name: p.name + " " + p.selectedOption,
+          product_id: p.sku, quantity: p.qty, price: p.price, image: p.image })),
+        ...(shippingCents ? [{ name: "Shipping", product_id: "HLX-SHIPPING", quantity: 1,
+          price: shippingCents / 100, image: site + "/assets/logo.png" }] : []),
+      ],
+      price: { sub_total: totalCents / 100, tax: 0, total: totalCents / 100, currency: "USD" },
     },
     metadata: { source: "api", cleffo_client_key: cfg.CLEFFO_CLIENT_KEY,
       redirect_url: site + "/cleffo-return.html?order=" + orderNumber,
@@ -265,7 +275,7 @@ Deno.serve(async (req) => {
   try {
     const cfg = await config();
     if (req.method === "GET" && path === "health") {
-      return json({ configured: true, mode: cfg.CLEFFO_BASE_URL.includes("-dev") ? "test" : "live",
+      return json({ configured: true, live_checkout_ready: false, tax_configured: false, mode: cfg.CLEFFO_BASE_URL.includes("-dev") ? "test" : "live",
         supplier_test_mode: cfg.CLEFFO_TIDECO_TEST_MODE === "true" || Deno.env.get("HLX_TEST_MODE") === "true",
         supplier_configured: !!Deno.env.get("HLX_FULFILLMENT_SECRET") && !!Deno.env.get("TIDECO_API_KEY") });
     }
