@@ -2,6 +2,7 @@
 window.HLXReports = (() => {
   const sections = [
     { id: 'overviewSection', label: 'Overview' },
+    { id: 'profitSection', label: 'Costs & profit' },
     { id: 'trendsSection', label: 'Sales trends' },
     { id: 'monthlySection', label: 'Monthly sales' },
     { id: 'productsSection', label: 'Products' },
@@ -21,13 +22,14 @@ window.HLXReports = (() => {
     const matches = products.filter(p => `${p.name} ${p.size} ${p.sku}`.toLowerCase().includes(search));
     document.querySelector('#products').replaceChildren(...matches.map(p => row([
       p.name, p.size || '—', p.sku, money(p.current_unit_cents), p.units, p.paid_orders,
-      money(p.average_unit_cents), p.min_unit_cents == null ? '—' : `${money(p.min_unit_cents)}–${money(p.max_unit_cents)}`, money(p.product_sales_cents), `${p.current_month_units ?? 0} / ${p.previous_month_units ?? '—'}`, percent(p.net_growth_percent)
+      money(p.average_unit_cents), p.min_unit_cents == null ? '—' : `${money(p.min_unit_cents)}–${money(p.max_unit_cents)}`, money(p.product_sales_cents), `${p.current_month_units ?? 0} / ${p.previous_month_units ?? '—'}`, percent(p.net_growth_percent), money(p.purchase_unit_cost_cents), money(p.units ? p.product_cost_cents : 0), money(p.units ? p.label_cost_cents : 0), money(p.units ? p.direct_margin_cents : 0)
     ])));
     if (!matches.length) document.querySelector('#products').append(row(['No matching products.']));
   }
   function clear() {
     products = [];
-    for (const id of ['overview', 'monthly', 'trends', 'revenueChart', 'products', 'summary', 'orders']) document.querySelector('#' + id).replaceChildren();
+    for (const id of ['costRules','costWarning']) document.querySelector('#' + id).textContent = '';
+    for (const id of ['overview', 'monthly', 'trends', 'revenueChart', 'costMetrics', 'monthlyProfit', 'products', 'summary', 'orders']) document.querySelector('#' + id).replaceChildren();
   }
   function render(result) {
     const o = result.overview;
@@ -56,12 +58,24 @@ window.HLXReports = (() => {
     }));
     const period = result.trend_period || {};
     document.querySelector('#productTrendNote').textContent = period.current_month ? `Product trends compare ${period.current_month} with ${period.previous_month} within the selected date range.` : 'Select a period with sales to compare product trends.';
+    const costs = result.costs || {};
+    const costMetrics = [['Product costs', money(costs.product_cost_cents)], ['Processing fees', money(costs.processing_fee_cents)], ['Label fees', money(costs.label_cost_cents)], ['Free-shipping expense', money(costs.shipping_expense_cents)], ['Total specified costs', money(costs.specified_cost_cents)], ['Estimated profit', money(costs.estimated_profit_cents)], ['Estimated margin', percent(costs.profit_margin_percent)]];
+    document.querySelector('#costMetrics').replaceChildren(...costMetrics.map(([label,value]) => {
+      const card = document.createElement('div'); card.className = 'metric';
+      const title = document.createElement('span'); title.textContent = label;
+      const amount = document.createElement('strong'); amount.textContent = value;
+      card.append(title,amount); return card;
+    }));
+    const model = result.cost_model;
+    document.querySelector('#costRules').textContent = model ? `Processing: ${Number(model.processing_rate * 100).toFixed(0)}% of total charged (including shipping and tax). Labels: ${money(model.label_cents)} per vial. Free-shipping expense: ${money(model.free_shipping_cost_cents)} on product subtotals of ${money(model.free_shipping_threshold_cents)} or more before discounts.` : '';
+    document.querySelector('#costWarning').textContent = costs.orders_missing_costs ? `Profit is unavailable for ${costs.orders_missing_costs} orders with missing product costs. Missing SKUs: ${(costs.missing_skus || []).join(', ')}. Missing costs are not treated as zero.` : 'All sold SKUs in this selection have purchase costs.';
+    document.querySelector('#monthlyProfit').replaceChildren(...(result.monthly || []).map(m => row([m.month + (m.partial_month ? ' (partial)' : ''), money(m.net_revenue_cents), money(m.product_cost_cents), money(m.processing_fee_cents), money(m.label_cost_cents), money(m.shipping_expense_cents), money(m.estimated_profit_cents)])));
     products = result.products;
     renderProducts();
     document.querySelector('#summary').replaceChildren(...result.summary.map(s => row([s.code, s.paid_orders, money(s.product_sales_cents), money(s.discounts_cents), money(s.paid_total_cents)])));
     const orders = result.orders.map(o => row([o.order_number, new Date(o.created_at).toLocaleString(), o.discount_code || '—', o.source,
       o.items.map(i => `${i.name} ${i.selectedOption || ''} × ${i.qty} @ ${money(Math.round(i.price * 100))}`).join('; '),
-      money(o.subtotal_cents-o.discount_cents), o.breakdown_known ? money(o.discount_cents) : 'Not recorded', money(o.total_cents), 'Paid']));
+      money(o.subtotal_cents-o.discount_cents), o.breakdown_known ? money(o.discount_cents) : 'Not recorded', money(o.total_cents), 'Paid', money(o.specified_cost_cents), money(o.estimated_profit_cents)]));
     document.querySelector('#orders').replaceChildren(...(orders.length ? orders : [row(['No paid orders for this selection yet.'])]));
   }
   document.querySelector('#reportSections').replaceChildren(...sections.map(section => {
