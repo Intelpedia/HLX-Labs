@@ -13,6 +13,19 @@ Deno.serve(async (req: Request) => {
     // getUser reads trusted current server metadata, never user-editable user_metadata.
     if (!data.user.email_confirmed_at || data.user.app_metadata?.hlx_admin !== true) return json({ error: "Administrator access required." }, 403);
     const url = new URL(req.url);
+    if (url.searchParams.get("view") === "contacts") {
+      const offset = Number(url.searchParams.get("offset") || 0);
+      if (!Number.isSafeInteger(offset) || offset < 0 || offset > 10000000) return json({ error: "Invalid contact page." }, 400);
+      const download = url.searchParams.get("download") === "csv";
+      const result = await admin.rpc("hlx_mailing_list", { page_offset: offset, export_all: download });
+      if (result.error) throw new Error("Contact query failed");
+      if (!download) return json(result.data);
+      const columns = ["email", "has_account", "has_purchase", "account_confirmed", "paid_orders", "first_seen", "last_seen", "marketing_consent"];
+      // Quote CSV fields and neutralize spreadsheet formulas in user-supplied email addresses.
+      const csvField = (value: any) => '"' + String(value ?? "").replace(/^[=+\-@\t\r]/, "'$&").replaceAll('"', '""') + '"';
+      const csv = [columns.join(","), ...result.data.contacts.map((contact: any) => columns.map(key => csvField(contact[key])).join(","))].join("\r\n");
+      return new Response("\uFEFF" + csv + "\r\n", { headers: { ...headers, "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": 'attachment; filename="hlx-mailing-list.csv"' } });
+    }
     const code = url.searchParams.get("code")?.trim().toUpperCase() || null;
     const offset = Number(url.searchParams.get("offset") || 0);
     if ((code && !/^[A-Z0-9_-]{1,40}$/.test(code)) || !Number.isSafeInteger(offset) || offset < 0 || offset > 10000000) return json({ error: "Invalid report filter." }, 400);

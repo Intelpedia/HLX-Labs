@@ -7,7 +7,8 @@ window.HLXReports = (() => {
     { id: 'monthlySection', label: 'Monthly sales' },
     { id: 'productsSection', label: 'Products' },
     { id: 'discountsSection', label: 'Discount codes' },
-    { id: 'ordersSection', label: 'Orders' }
+    { id: 'ordersSection', label: 'Orders' },
+    { id: 'contactsSection', label: 'Mailing list' }
   ];
   const money = cents => cents == null ? '—' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
   const percent = value => value == null ? '—' : (value > 0 ? '+' : '') + Number(value).toFixed(1) + '%';
@@ -81,6 +82,7 @@ window.HLXReports = (() => {
     if (!matches.length) document.querySelector('#products').append(row(['No matching products.']));
   }
   function clear() {
+    window.HLXMailingList?.clear();
     products = [];
     for (const id of ['costRules','costWarning']) document.querySelector('#' + id).textContent = '';
     for (const id of ['overview', 'monthly', 'trends', 'revenueChart', 'costComposition', 'costMetrics', 'monthlyProfit', 'products', 'summary', 'orders']) document.querySelector('#' + id).replaceChildren();
