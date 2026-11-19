@@ -672,6 +672,7 @@ async function renderAccountOrders(user){
 async function renderAccountState(){
  const loggedOut=document.querySelector('#accountLoggedOut'),loggedIn=document.querySelector('#accountLoggedIn');if(!loggedOut&&!loggedIn)return;
  const {data:{user}}=hlxSupabase?await hlxSupabase.auth.getUser():{data:{user:null}};
+ const reportLink=document.querySelector('#discountReportLink');if(reportLink)reportLink.hidden=user?.app_metadata?.hlx_admin!==true;
  const title=document.querySelector('#accountTitle');
  if(user){if(loggedOut)loggedOut.hidden=true;if(loggedIn)loggedIn.hidden=false;if(title)title.textContent='My Account';const meta=user.user_metadata||{};const email=document.querySelector('#accountEmail'),name=document.querySelector('#accountName'),type=document.querySelector('#accountResearcherType'),elig=document.querySelector('#accountEligibility');if(email)email.textContent=user.email||'—';if(name)name.textContent=meta.name||'—';if(type)type.textContent=meta.researcher_type||'—';if(elig)elig.textContent=(meta.age_confirmed&&meta.research_use_confirmed&&meta.terms_accepted)?'Verified':'Review required';localStorage.setItem('hlxCustomerEmail',user.email||'');renderAccountOrders(user)}
  else{if(loggedOut)loggedOut.hidden=false;if(loggedIn)loggedIn.hidden=true;if(title)title.textContent='Sign in'}
