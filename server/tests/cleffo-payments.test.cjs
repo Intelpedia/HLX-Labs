@@ -100,3 +100,22 @@ test('shipping is $15 below $200 and free starting at $200', () => {
   assert.equal(vm.runInContext('shippingCentsForSubtotal(20000)', context), 0);
   assert.equal(vm.runInContext('shippingCentsForSubtotal(25000)', context), 0);
 });
+
+test('live verification accepts processor-added tax and records the final amount', async () => {
+  const { context, writes } = runtime();
+  context.fetch = async () => Response.json({ status: true, data: {
+    transaction_reference_number: 'ref', merchant_order_id: 'order', currency: 'USD',
+    total_amount: '70.20', payment_status: 'completed'
+  } });
+  context.saved = { reference: 'ref', order_number: 'order', currency: 'USD', total_cents: 6500,
+    subtotal_cents: 5000, shipping_cents: 1500, is_test: false };
+  await vm.runInContext('verifyPayment(saved, {})', context);
+  assert.equal(writes[0].total_cents, 7020);
+  assert.equal(writes[0].tax_cents, 520);
+});
+test('live verification rejects payment below merchandise plus shipping', async () => {
+  const { context } = runtime();
+  context.saved = { reference: 'ref', order_number: 'order', currency: 'USD', total_cents: 6500,
+    subtotal_cents: 5000, shipping_cents: 1500, is_test: false };
+  await assert.rejects(vm.runInContext('verifyPayment(saved, {})', context), /do not match/);
+});

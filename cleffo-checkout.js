@@ -22,7 +22,7 @@ checkoutButton.disabled = !cart.length;
 checkoutForm.addEventListener('submit', async event => {
   event.preventDefault();
   checkoutButton.disabled = true;
-  checkoutStatus.textContent = 'Preparing test payment…';
+  checkoutStatus.textContent = 'Preparing secure payment…';
   try {
     const fields = new FormData(checkoutForm);
     const body = {

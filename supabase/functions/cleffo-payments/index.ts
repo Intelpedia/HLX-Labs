@@ -109,14 +109,14 @@ async function checkout(req: Request, input: any, cfg: any) {
   const shippingCents = shippingCentsForSubtotal(subtotal);
   const totalCents = subtotal + shippingCents;
   const isTest = cfg.CLEFFO_BASE_URL === "https://apis-dev.cleffo.com";
-  // Shipping is configured. Live sales-tax calculation still needs a tax-service connection.
-  if (!isTest) return json({ error: "Live checkout configuration is not complete" }, 503);
+  // Tax is configured by the merchant in Cleffo's processor panel.
   const accessHash = await hash(input.access_token);
   const requestHash = await hash(JSON.stringify({ items, customer, shipTo, accessHash }));
   const { data: prior, error: priorError } = await admin.from("cleffo_sessions")
     .select("*").eq("request_id", input.request_id).maybeSingle();
   if (priorError) throw new Error("Checkout lookup unavailable");
   if (prior) {
+    if (prior.is_test !== isTest) return json({ error: "Checkout environment changed. Start a new checkout.", code: "CHECKOUT_CLOSED" }, 409);
     if (!same(prior.request_hash, requestHash)) return json({ error: "Cart changed. Start a new checkout." }, 409);
     if (!prior.payment_link) return json({ error: "Checkout is being prepared. Retry shortly." }, 409);
     const checked = await verifyPayment(prior, cfg);
@@ -199,11 +199,14 @@ async function verifyPayment(saved: any, cfg: any) {
   if (!response.ok) throw new Error("Payment verification unavailable");
   const result = await response.json();
   const paid = result.data;
+  const paidCents = Math.round(Number(paid?.total_amount) * 100);
+  const baseCents = saved.subtotal_cents != null
+    ? saved.subtotal_cents + (saved.shipping_cents || 0) : saved.total_cents;
   if (result.status !== true || paid?.transaction_reference_number !== saved.reference ||
       paid.merchant_order_id !== saved.order_number ||
       String(paid.currency).toUpperCase() !== saved.currency ||
       !Number.isFinite(Number(paid.total_amount)) ||
-      Math.round(Number(paid.total_amount) * 100) !== saved.total_cents) {
+      (saved.is_test ? paidCents !== saved.total_cents : paidCents < baseCents)) {
     throw new Error("Payment details do not match checkout");
   }
   if (paid.payment_status !== "completed") {
@@ -213,9 +216,11 @@ async function verifyPayment(saved: any, cfg: any) {
     }
     return saved;
   }
+  // Only the authenticated processor status API can supply the final tax-inclusive amount.
+  const amounts = saved.is_test ? {} : { total_cents: paidCents, tax_cents: paidCents - baseCents };
   await update(saved.order_number, { payment_state: saved.is_test ? "test_completed" : "completed",
-    verified_payment: paid });
-  return { ...saved, payment_state: saved.is_test ? "test_completed" : "completed", verified_payment: paid };
+    ...amounts, verified_payment: paid });
+  return { ...saved, ...amounts, payment_state: saved.is_test ? "test_completed" : "completed", verified_payment: paid };
 }
 async function fulfill(saved: any) {
   if (!["completed", "test_completed"].includes(saved.payment_state)) return;
@@ -275,7 +280,7 @@ Deno.serve(async (req) => {
   try {
     const cfg = await config();
     if (req.method === "GET" && path === "health") {
-      return json({ configured: true, live_checkout_ready: false, tax_configured: false, mode: cfg.CLEFFO_BASE_URL.includes("-dev") ? "test" : "live",
+      return json({ configured: true, live_checkout_ready: true, tax_handling: "processor", supplier_live_mode: Deno.env.get("HLX_TEST_MODE") === "false", mode: cfg.CLEFFO_BASE_URL.includes("-dev") ? "test" : "live",
         supplier_test_mode: cfg.CLEFFO_TIDECO_TEST_MODE === "true" || Deno.env.get("HLX_TEST_MODE") === "true",
         supplier_configured: !!Deno.env.get("HLX_FULFILLMENT_SECRET") && !!Deno.env.get("TIDECO_API_KEY") });
     }

@@ -53,3 +53,7 @@ Reusing a checkout request first refreshes provider payment status. Closed sessi
 ## Supplier test approval
 
 The user confirmed TideCo has been notified that incoming orders are tests and will not be fulfilled. `CLEFFO_TIDECO_TEST_MODE=true` is stored in Vault. Completed Cleffo test payments are sent with `paid:true` and note `TEST — DO NOT FULFILL`, and recorded as `test_accepted`. A previously held order is updated using its original supplier order ID. This does not change Cleffo from development mode.
+
+## Production checkout activation
+
+The merchant requested removing the live guard and configuring tax in the processor panel. Checkout uses the configured production credentials. Shipping is $15 below $200, free at $200 or more. The API sends base tax 0; processor-panel automatic tax behavior must be verified with Cleffo. The verified status API may report a higher tax-inclusive amount, which is saved as the final total and tax difference. Cleffo test and outage labels have been removed. TideCo remains under the supplier hold reported by the merchant.
