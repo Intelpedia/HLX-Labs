@@ -5,7 +5,7 @@ const vm=require('node:vm');
 function ui(){
  const nodes={};
  const element=()=>({children:[],value:'',textContent:'',append(...children){this.children.push(...children)},replaceChildren(...children){this.children=children},setAttribute(){},addEventListener(){}});
- const context={window:{},Intl,Date,document:{createElement:element,querySelector:key=>nodes[key]||(nodes[key]=element())}};
+ const context={window:{},Intl,Date,document:{createElement:element,createElementNS:element,createTextNode:text=>({textContent:text}),querySelector:key=>nodes[key]||(nodes[key]=element())}};
  vm.runInNewContext(fs.readFileSync('sales-report-ui.js','utf8'),context);
  return {api:context.window.HLXReports,nodes};
 }
@@ -16,7 +16,9 @@ test('product prices, volume, discounted revenue, and unsold products render saf
  assert.equal(nodes['#monthly'].children[0].children[0].textContent,'2026-11');
  assert.equal(nodes['#monthly'].children[0].children[8].textContent,'$155.00');
  assert.equal(nodes['#trends'].children[0].children[2].textContent,'+25.0%');
- assert.equal(nodes['#revenueChart'].children[0].children[1].value,14000);
+ assert.equal(nodes['#revenueChart'].children.length,1);
+ assert.ok(nodes['#revenueChart'].children[0].children.length>10);
+ assert.equal(nodes['#costComposition'].children.length,2);
  assert.equal(nodes['#costMetrics'].children[5].children[1].textContent,'$87.15');
  assert.equal(nodes['#products'].children.length,2);
  const cells=nodes['#products'].children[0].children;
