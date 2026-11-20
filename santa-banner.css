@@ -1,3 +1,5 @@
+.hlx-header-stack{position:sticky;top:0;z-index:20}
+.hlx-header-stack>.site-header{position:relative;top:auto;z-index:auto}
 .hlx-santa-flight{position:relative;overflow:hidden;height:106px;background:radial-gradient(ellipse at 50% 10%,#461525,#101019 60%,#08090c);border-bottom:1px solid #88553b}
 .hlx-santa-pass{--team-width:clamp(375px,43vw,594px);display:flex;position:absolute;left:0;top:6px;width:max-content;align-items:center;animation:hlx-santa-fly 22s linear -10s infinite}
 .hlx-santa-sign{display:block;flex:none;white-space:nowrap;padding:3px 2rem;background:#8d1224;border-block:1px solid #f1b86b;color:#fff;font-size:.76rem;line-height:1.25;font-weight:800;letter-spacing:.065em;transform:translateY(calc(var(--team-width) * .021))}
