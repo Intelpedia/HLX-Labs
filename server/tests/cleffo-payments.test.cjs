@@ -162,3 +162,30 @@ test('live verification uses discounted merchandise amount and records processor
   assert.equal(writes[0].total_cents, 5000);
   assert.equal(writes[0].tax_cents, 500);
 });
+
+test('all promo codes skip sale variants and reject sale-only carts', async () => {
+  const { context } = runtime();
+  const products = [
+    { cart_key: '1::0', product_id: 1, option_key: '0', sku: 'regular', unit_cents: 5000, regular_unit_cents: 5000, active: true },
+    { cart_key: '1::1', product_id: 1, option_key: '1', sku: 'sale', unit_cents: 3000, regular_unit_cents: 4500, active: true }
+  ];
+  context.mockFrom = table => ({ select: () => table === 'cleffo_catalog'
+    ? { in: async (_key, keys) => ({ data: products.filter(product => keys.includes(product.cart_key)) }) }
+    : { eq: (_key, code) => ({ maybeSingle: async () => ({ data: {
+      active: true, discount_type: code === 'HOL20' ? 'percent' : 'fixed', amount: code === 'HOL20' ? 20 : 100,
+      minimum_subtotal_cents: 0
+    } }) }) } });
+  vm.runInContext('admin.from = mockFrom', context);
+  context.input = { items: [{ cart_key: '1::0', qty: 3 }, { cart_key: '1::1', qty: 2 }], discount_code: 'HOL20' };
+  const quote = await vm.runInContext('priceCart(input)', context);
+  assert.equal(quote.discountCents, 3000);
+  assert.equal(quote.items.find(item => item.sku === 'sale').price, 30);
+  assert.equal(quote.totalCents, 18000);
+  context.input.items.shift();
+  assert.equal((await vm.runInContext('priceCart(input)', context)).status, 400);
+  context.input.items.unshift({ cart_key: '1::0', qty: 1 });
+  context.input.discount_code = 'FIXED';
+  const fixed = await vm.runInContext('priceCart(input)', context);
+  assert.equal(fixed.discountCents, 5000);
+  assert.equal(fixed.items.find(item => item.sku === 'sale').price, 30);
+});

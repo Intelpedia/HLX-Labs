@@ -66,11 +66,13 @@ function discountForSubtotal(subtotal: number, kind: string, amount: number) {
   return Math.min(subtotal, Math.round(kind === "percent" ? subtotal * amount / 100 : amount * 100));
 }
 
-function allocateDiscount(items: any[], discountCents: number) {
-  const subtotal = items.reduce((sum, item) => sum + Math.round(item.price * 100) * item.qty, 0);
+function allocateDiscount(items: any[], discountCents: number, eligibleItems = items) {
+  const eligible = new Set(eligibleItems);
+  const subtotal = eligibleItems.reduce((sum, item) => sum + Math.round(item.price * 100) * item.qty, 0);
   let cumulative = 0;
   let allocated = 0;
   return items.flatMap(item => {
+    if (!eligible.has(item)) return [item];
     const gross = Math.round(item.price * 100) * item.qty;
     cumulative += gross;
     const nextAllocated = Math.round(discountCents * cumulative / subtotal);
@@ -111,6 +113,7 @@ async function priceCart(input: any) {
   const shippingCents = shippingCentsForSubtotal(subtotal);
   const discountCode = text(input.discount_code, 41).toUpperCase();
   let discountCents = 0;
+  let eligibleItems = originalItems;
   if (discountCode) {
     if (!/^[A-Z0-9_-]{1,40}$/.test(discountCode)) return json({ error: "Enter a valid discount code" }, 400);
     const { data: discount, error } = await admin.from("cleffo_discount_codes")
@@ -120,9 +123,16 @@ async function priceCart(input: any) {
         subtotal < discount.minimum_subtotal_cents) {
       return json({ error: "This discount code is invalid, expired, or does not meet the minimum order amount" }, 400);
     }
-    discountCents = discountForSubtotal(subtotal, discount.discount_type, Number(discount.amount));
+    const saleKeys = new Set(catalog
+      .filter((p: any) => p.regular_unit_cents != null && p.unit_cents < p.regular_unit_cents)
+      .map((p: any) => p.cart_key));
+    eligibleItems = originalItems.filter((item: any) => !saleKeys.has(`${item.id}::${item.optionKey}`));
+    if (!eligibleItems.length) return json({ error: "Discount codes apply only to full-price items." }, 400);
+    const eligibleSubtotal = eligibleItems.reduce((sum: number, item: any) =>
+      sum + Math.round(item.price * 100) * item.qty, 0);
+    discountCents = discountForSubtotal(eligibleSubtotal, discount.discount_type, Number(discount.amount));
   }
-  const items = discountCents ? allocateDiscount(originalItems, discountCents) : originalItems;
+  const items = discountCents ? allocateDiscount(originalItems, discountCents, eligibleItems) : originalItems;
   const totalCents = subtotal - discountCents + shippingCents;
   if (totalCents < 1) return json({ error: "This code reduces the order below the minimum payment amount" }, 400);
   return { items, subtotal, shippingCents, totalCents, discountCents, discountCode };
