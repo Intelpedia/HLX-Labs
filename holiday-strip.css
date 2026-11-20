@@ -1,12 +1,12 @@
 .holiday-strip {
   position: relative;
-  padding: 7px 0;
+  padding: 3px 0;
   background: #8d1224;
   color: #fff;
   border-block: 1px solid #f1b86b;
   text-align: center;
-  font-size: .82rem;
-  line-height: 1.4;
+  font-size: .76rem;
+  line-height: 1.25;
 }
 .holiday-strip-window { overflow: hidden; }
 .holiday-strip-track {
@@ -22,26 +22,9 @@
   font-weight: 800;
   letter-spacing: .065em;
 }
-.holiday-strip small { display: block; color: #fff0df; }
-.holiday-strip-pause { position: absolute; opacity: 0; }
-.holiday-strip label {
-  position: relative;
-  float: right;
-  z-index: 1;
-  margin-right: .5rem;
-  padding: 1px 5px;
-  background: #72101d;
-  border-radius: 3px;
-  cursor: pointer;
-  font-size: .72rem;
-}
-.holiday-strip-pause:focus-visible + label { outline: 2px solid white; }
-.holiday-strip-pause:checked ~ .holiday-strip-window .holiday-strip-track { animation: none; width: auto; }
-.holiday-strip-pause:checked ~ .holiday-strip-window .holiday-strip-track span { min-width: 0; width: 100%; white-space: normal; padding: 0 .5rem; }
-.holiday-strip-pause:checked ~ .holiday-strip-window [aria-hidden] { display: none; }
 @keyframes holiday-scroll { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) {
-  .holiday-strip-pause, .holiday-strip label, .holiday-strip-track [aria-hidden] { display: none; }
+  .holiday-strip-track [aria-hidden] { display: none; }
   .holiday-strip-track { animation: none; width: auto; }
   .holiday-strip-track span { min-width: 0; width: 100%; white-space: normal; }
 }
