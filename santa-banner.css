@@ -1,0 +1,16 @@
+.hlx-santa-flight{position:relative;overflow:hidden;height:106px;background:radial-gradient(ellipse at 50% 10%,#461525,#101019 60%,#08090c);border-bottom:1px solid #88553b}
+.hlx-santa-pass{--team-width:clamp(375px,43vw,594px);display:flex;position:absolute;left:0;top:6px;width:max-content;align-items:center;animation:hlx-santa-fly 22s linear -10s infinite}
+.hlx-santa-sign{display:block;flex:none;white-space:nowrap;padding:3px 2rem;background:#8d1224;border-block:1px solid #f1b86b;color:#fff;font-size:.76rem;line-height:1.25;font-weight:800;letter-spacing:.065em;transform:translateY(calc(var(--team-width) * .021))}
+.hlx-santa-team{flex:none;width:var(--team-width);height:auto;overflow:visible}
+.hlx-santa-deer{animation:hlx-santa-gallop .62s ease-in-out infinite alternate;animation-delay:var(--phase)}
+.hlx-santa-rudolph{filter:drop-shadow(0 0 4px #ff4256)}
+@keyframes hlx-santa-gallop{to{translate:0 -4px}}
+@keyframes hlx-santa-fly{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
+@media (max-width:600px){.hlx-santa-flight{height:76px}.hlx-santa-pass{top:1px}}
+@media (prefers-reduced-motion:reduce){
+ .hlx-santa-deer,.hlx-santa-pass{animation:none}
+ .hlx-santa-flight{height:auto;padding:18px 12px 8px}
+ .hlx-santa-pass{position:static;display:flex;flex-direction:column;width:auto}
+ .hlx-santa-sign{white-space:normal;text-align:center;transform:none}
+ .hlx-santa-team{max-width:100%}
+}
