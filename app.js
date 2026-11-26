@@ -22,9 +22,9 @@ const products = [
     desc: "HLR-3 is an investigational peptide studied in laboratory research involving GLP-1, GIP, and glucagon receptor signaling and associated metabolic pathways..",
     options: [
       { label: "10mg", price: 50.00 },
-      { label: "12mg", price: 60.00 },
-      { label: "20mg", price: 90.00 },
-      { label: "30mg", price: 120.00 }
+      { label: "12mg", price: 55.00 },
+      { label: "20mg", price: 80.00 },
+      { label: "30mg", price: 100.00 }
     ],
     productImage: "assets/RETATRUTIDE.JPG",
     coaImages: [
