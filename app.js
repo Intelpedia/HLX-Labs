@@ -76,7 +76,7 @@ const products = [
     name: 'Cagrilintide',
     tier: "Extreme",
     desc: "Cagrilintide is a long-acting amylin analog investigated in reseach involving amylin receptor signaling and metabolic regulatory pathways.",
-    price: 80.00,
+    price: 70.00,
     size: "10mg",
     productImage: "assets/CAGRILINTIDE.jpg",
     coaImages: [
@@ -278,8 +278,8 @@ const products = [
     tier: "Low",
     desc: "MOTS-C is a mitochondrial-derived peptide investigated in laboratory research involving mitochondrial signaling, cellular energy regulation, and metabolic pathways.",
     options: [
-      { label: "10mg", price: 70.00 },
-      { label: "40mg", price: 120.00 }
+      { label: "10mg", price: 60.00 },
+      { label: "40mg", price: 90.00 }
     ],
     productImage: "assets/Motsreal.jpg",
     coaImages: [
@@ -366,7 +366,7 @@ const products = [
     name: 'Melanotan I',
     tier: "Extreme",
     desc: "Melanotan I is a synthetic analog of alpha-melanocyte-stimulating hormone studied in research involving melanocortin receptors and pigmentation-related signaling pathways.",
-    price: 55.00,
+    price: 50.00,
     size: "10mg",
     productImage: "assets/MELANOTAN.jpg",
     coaImages: [
@@ -380,7 +380,7 @@ const products = [
     name: 'Melanotan II',
     tier: "Extreme",
     desc: "Melanotan II is a synthetic melanocortin peptide investigated in laboratory research involving melanocortin receptor activity and associated cellular signaling pathways.",
-    price: 55.00,
+    price: 50.00,
     size: "10mg",
     productImage: "assets/MELANOTAN.jpg",
     coaImages: [
@@ -422,7 +422,7 @@ const products = [
     name: 'GLOW (GHK-Cu / TB-500 / BPC-157)',
     tier: "Extreme",
     desc: "GLOW is a three-peptide research blend combining GHK-Cu, TB-500, and BPC-157 for laboratory investigation of cellular signaling, extracellular matrix activity, cellular migration, and related biological response pathways.",
-    price: 80.00,
+    price: 70.00,
     size: "50/10/10mg",
     productImage: "assets/GLOW.jpg",
     coaImages: [
@@ -451,8 +451,8 @@ const products = [
     tier: "High",
     desc: "CJC-1295-IPA is a research peptide combination featuring CJC-1295, a GHRH analog and, Ipamorelin, a growth hormone secretagogue.",
    options: [
-      { label: "5/5mg", price: 70.00 },
-      { label: "10/10mg", price: 100.00 }
+      { label: "5/5mg", price: 60.00 },
+      { label: "10/10mg", price: 70.00 }
     ],
     productImage: "assets/CJC-1295-IPA.jpg",
     coaImages: [
@@ -467,7 +467,7 @@ const products = [
     name: 'KLOW-Cu (GHK-Cu / KPV / TB-500 / BPC-157)',
     tier: "Extreme",
     desc: "KLOW-Cu is a four-peptide research blend combining GHK-Cu, KPV, TB-500, and BPC-157 for laboratory investigation of cellular signaling, extracellular matrix activity, cellular migration, and biological-response pathways.",
-    price: 100.00,
+    price: 80.00,
     size: "50/10/10/10mg",
     productImage: "assets/KLOW.jpg",
     coaImages: [
@@ -498,7 +498,7 @@ const products = [
     name: 'IGF-1 LR3',
     tier: "High",
     desc: "IGF-1 LR3 is a modified growth factor peptide studied for its role in cellular growth, protein synthesis, tissue development, and metabolic signaling.",
-    price: 85.00,
+    price: 80.00,
     size: "1mg",
     productImage: "assets/IGF-1 LR3.jpg",
     coaImages: [
