@@ -319,6 +319,17 @@
     "active": true
   },
   {
+    "cart_key": "20::1",
+    "product_id": 20,
+    "option_key": "1",
+    "name": "NAD+",
+    "size": "1000mg",
+    "sku": "NAD-1000mg",
+    "unit_cents": 7000,
+    "image": "https://hlxlabs.com/assets/NAD+.png",
+    "active": true
+  },
+  {
     "cart_key": "21::default",
     "product_id": 21,
     "option_key": "default",
