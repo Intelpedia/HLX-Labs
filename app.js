@@ -42,10 +42,10 @@ const products = [
     tier: "Extreme",
     desc: "HLT-2 is a peptide studied in laboratory research involving GIP and GLP-1 receptor activity and associated metabolic signaling pathways.",
     options: [
-      { label: "10mg", price: 50.00 },  
-      { label: "30mg", price: 70.00 },
-      { label: "40mg", price: 80.00 },
-      { label: "60mg", price: 100.00 }
+      { label: "10mg", price: 40.00 },  
+      { label: "30mg", price: 60.00 },
+      { label: "40mg", price: 70.00 },
+      { label: "60mg", price: 90.00 }
     ],
     productImage: "assets/TIRZEPATIDE.JPG",
     coaImages: [
@@ -91,9 +91,9 @@ const products = [
     tier: "High",
     desc: "Tesamorelin is a growth hormone-releasing hormone (GHRH) analog studied in research involving GHRH receptor activity and downstream endocrine signaling pathways.",
     options: [
-      { label: "10mg", price: 70.00 },  
-      { label: "20mg", price: 90.00 },
-      { label: "30mg", price: 120.00 }
+      { label: "10mg", price: 60.00 },  
+      { label: "20mg", price: 80.00 },
+      { label: "30mg", price: 100.00 }
     ],
     productImage: "assets/Tesareal.jpg",
     coaImages: [
@@ -123,7 +123,7 @@ const products = [
     name: 'CJC-1295',
     tier: "High",
     desc: "CJC-1295 is a synthetic GHRH analog studied in laboratory research involving growth hormone-releasing hormone receptor activity and related peptide signaling pathways.",
-    price: 70.00,
+    price: 60.00,
     size: "10mg",
     productImage: "assets/CJC-1295.jpg",
     coaImages: [
@@ -137,7 +137,7 @@ const products = [
     name: 'Sermorelin',
     tier: "High",
     desc: "Sermorelin is a GHRH-related peptide studied for its interaction with GHRH receptors and associated endocrine signaling mechanisms.",
-    price: 80.00,
+    price: 65.00,
     size: "10mg",
     productImage: "assets/SERMORELIN.jpg",
     coaImages: [
@@ -151,7 +151,7 @@ const products = [
     name: 'GHRP-2',
     tier: "High",
     desc: "GHRP-2 is a synthetic growth hormone-releasing peptide studied in research involving growth hormone secretagogue receptors and associated signaling pathways.",
-    price: 60.00,
+    price: 50.00,
     size: "10mg",
     productImage: "assets/GHRP-2.jpg",
     coaImages: [
@@ -324,7 +324,7 @@ const products = [
     name: 'Thymosin Alpha-1',
     tier: "Low",
     desc: "Thymosin Alpha-1 is a peptide studied in laboratory research involving immune-system signaling, T-cell activity, cytokine regulation, and other immune-response pathways.",
-    price: 60.00,
+    price: 50.00,
     size: "10mg",
     productImage: "assets/THYMOSIN ALPHA-1.png",
     coaImages: [
@@ -394,7 +394,7 @@ const products = [
     name: 'DSIP',
     tier: "Low",
     desc: "DSIP is a peptide studied experimentally in research involving neurological signaling, sleep-associated mechanisms, and neuroendocrine pathways.",
-    price: 60.00,
+    price: 50.00,
     size: "10mg",
     productImage: "assets/DSIP.png",
     coaImages: [
@@ -408,7 +408,7 @@ const products = [
     name: 'VIP',
     tier: "High",
     desc: "VIP is a naturally occurring neuropeptide studied for its involvement in cellular communication, immune signaling, vascular biology, and neuroendocrine pathways.",
-    price: 60.00,
+    price: 50.00,
     size: "10mg",
     productImage: "assets/VIP.jpg",
     coaImages: [
@@ -436,7 +436,7 @@ const products = [
     name: 'Wolverine Stack (BPC-157 / TB-500)',
     tier: "Extreme",
     desc: "Wolverine is a dual-peptide research blend combining BPC-157 and TB-500 for laboratory investigation of cellular signaling, cellular migration, and tissue-response pathways.",
-    price: 75.00,
+    price: 60.00,
     size: "10/10mg",
     productImage: "assets/Wolverine.jpg",
     coaImages: [
@@ -483,7 +483,7 @@ const products = [
     desc: "SS-31 is a mitochondria-targeted peptide studied for its effects on cellular energy production, mitochondrial function, and oxidative stress.",
    options: [
       { label: "10mg", price: 60.00 },
-      { label: "30mg", price: 120.00 }
+      { label: "30mg", price: 90.00 }
     ],
     productImage: "assets/SS-31.jpg",
     coaImages: [
