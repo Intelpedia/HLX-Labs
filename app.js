@@ -309,7 +309,8 @@ const products = [
     tier: "Low",
     desc: "Nicotinamide adenine dinucleotide (NAD+) is a naturally occurring coenzyme extensively studied for its role in cellular energy metabolism, redox reactions, and NAD-dependent signaling pathways.",
     options: [
-      { label: "500mg", price: 70.00 }
+      { label: "500mg", price: 55.00 },
+      { label: "1000mg", price: 70.00 }
     ],
     productImage: "assets/NAD+.png",
     coaImages: [
